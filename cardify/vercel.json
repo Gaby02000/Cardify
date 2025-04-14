@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.5.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.php"
+    }
+  ],
+  "builds": [
+    {
+      "src": "api/index.php",
+      "use": "@vercel/php"
+    }
+  ],
+  "installCommand": "composer install --prefer-dist --no-dev -o",
+  "outputDirectory": "public"
+}
