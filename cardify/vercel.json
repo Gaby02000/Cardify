@@ -9,14 +9,18 @@
     },
     "routes": [
       {
+        "src": "/(css|js|vendor|assets|build)/(.*)",
+        "dest": "public/$1/$2"
+      },
+      {
         "src": "/(.*)",
-        "dest": "/index.html"
+        "dest": "api/index.php"
       }
     ],
     "env": {
       "APP_ENV": "production",
       "APP_DEBUG": "true",
-      "APP_URL": "https://cardify-gamma.vercel.app",
+      "APP_URL": "https://github.com/Gaby02000/Cardify",
       "APP_CONFIG_CACHE": "/tmp/config.php",
       "APP_EVENTS_CACHE": "/tmp/events.php",
       "APP_PACKAGES_CACHE": "/tmp/packages.php",
