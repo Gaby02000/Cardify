@@ -1,29 +1,36 @@
 {
-  "version": 2,
-  "outputDirectory": "public",
-  "framework": "null",
-  "functions": { "api/index.php": { "runtime": "vercel-php@0.6.1" } },
-  "routes": [
-      {
-          "src": "/(.*)",
-          "dest": "/api/index.php"
+    "version": 2,
+    "outputDirectory": "public",
+    "framework": null,
+    "functions": {
+      "api/index.php": {
+        "runtime": "vercel-php@0.6.1"
       }
-  ],
-  "env": {
+    },
+    "routes": [
+      {
+        "src": "/(css|js|vendor|assets|build)/(.*)",
+        "dest": "public/$1/$2"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "api/index.php"
+      }
+    ],
+    "env": {
       "APP_ENV": "production",
       "APP_DEBUG": "true",
-      "APP_URL": "https://cardify-78ax5cquh-gaby02000s-projects.vercel.app/",
-      "VERCEL_DEMO_MODE": "true",
+      "APP_URL": "https://cardify-gamma.vercel.app",
       "APP_CONFIG_CACHE": "/tmp/config.php",
       "APP_EVENTS_CACHE": "/tmp/events.php",
       "APP_PACKAGES_CACHE": "/tmp/packages.php",
       "APP_ROUTES_CACHE": "/tmp/routes.php",
       "APP_SERVICES_CACHE": "/tmp/services.php",
+      "VIEW_COMPILED_PATH": "/tmp",
       "CACHE_DRIVER": "array",
       "LOG_CHANNEL": "stderr",
       "SESSION_DRIVER": "cookie",
-      "VIEW_COMPILED_PATH": "/tmp/views",
-      "SSR_TEMP_PATH": "/tmp/ssr",
-      "NODE_PATH": "node"
+      "DB_CONNECTION": "sqlite",
+      "DB_DATABASE": "/tmp/database.sqlite"
+    }
   }
-}
