@@ -32,6 +32,11 @@ Route::middleware('guest')->group(function () {
 
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+        // Ruta para mostrar index.html directamente desde /public
+    Route::get('/', function () {
+        return file_get_contents(public_path('index.html'));
+});
+
 });
 
 Route::middleware('auth')->group(function () {
