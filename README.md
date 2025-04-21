@@ -1,7 +1,7 @@
 # APLICACIONES WEB
 # CARDIFY
 
-**Cardify** es una empresa ficticia dedicada a la venta de gift cards digitales a través de una plataforma web. Nuestro objetivo es brindar a los usuarios una experiencia rápida y sencilla para adquirir y regalar códigos digitales de sus tiendas favoritas.
+**Cardify**  es una empresa ficticia dedicada a la venta de gift cards digitales a través de una plataforma web. Nuestro objetivo es brindar a los usuarios una experiencia rápida y sencilla para adquirir y regalar códigos digitales de sus tiendas favoritas.
 
 ## 💼 Empresa Ficticia
 
