@@ -39,6 +39,8 @@
             </nav>
         </aside>
 
+        @yield('content-base')
+
         <!-- Contenido principal -->
         <main class="flex-1 p-10 text-gray-300">
             <h1 class="text-4xl font-extrabold text-yellow-400 mb-6">Bienvenido a Cardify 🎉</h1>

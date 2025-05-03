@@ -11,8 +11,24 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
+        'cart_item_id',
         'gift_card_id',
         'quantity',
-        'price',
+        'price'
     ];
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function cartItem()
+    {
+        return $this->hasOne(CartItem::class);
+    }
+
+    public function giftCard()
+    {
+        return $this->hasOne(GiftCard::class);
+    }
 }
