@@ -10,15 +10,17 @@
         body::before {
             content: "";
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('/images/fondo-login3.jpg');
+            top: -10px;
+            left: -10px;
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            background-image: 
+                radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.7) 100%),
+                url('/images/wallpapper-login.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            filter: blur(6px); /* Cambia este valor si querés más/menos desenfoque */
+            filter: blur(6px) brightness(0.6);
             z-index: -1;
         }
 

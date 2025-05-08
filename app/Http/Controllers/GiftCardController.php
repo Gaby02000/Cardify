@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Category;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
 
@@ -13,6 +13,32 @@ class GiftCardController extends Controller
         return view('index', compact('giftcards'));
     }
 
+    public function create()
+    {
+        return view('giftcards.create');
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'id_category' => 'required|integer',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'amount' => 'required|numeric',
+            'price' => 'required|numeric',
+            'image' => 'nullable|image',
+            'stock' => 'required|integer',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $data['image'] = $request->file('image')->store('giftcards', 'public');
+        }
+
+        GiftCard::create($data);
+
+        return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
+    }
+    
     public function show($id)
     {
         $giftcard = GiftCard::findOrFail($id);

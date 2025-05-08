@@ -66,11 +66,19 @@
         <!-- Contenido principal -->
         <main class="flex-1 p-10">
             <h1 class="text-4xl font-extrabold mb-6" style="color: #a4cadc;">Bienvenido a Cardify 🎉</h1>
-            <p class="text-lg">Explora nuestra colección de giftcards exclusivas y haz tu primera compra fácilmente.</p>
+            <p class="text-lg mb-4">Explora nuestra colección de giftcards exclusivas y haz tu primera compra fácilmente.</p>
 
+            <!-- Botón para agregar GiftCard -->
+            <a href="{{ route('giftcards.create') }}" 
+            class="inline-block mb-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
+                + Agregar GiftCard
+            </a>
+            <a href="{{ route('categories.create') }}" 
+                class="inline-block mb-4 px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition">
+                + Agregar Categoría
+            </a>
             <!-- Lugar donde más adelante cargarás las giftcards -->
-            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Placeholder -->
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div class="main-bg rounded p-6 text-center text-white">
                     <p class="font-semibold">Aquí irán las Giftcards 🚀</p>
                 </div>

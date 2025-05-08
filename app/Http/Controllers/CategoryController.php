@@ -20,15 +20,18 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('categories.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255'
+        ]);
+
+        Category::create($validated);
+
+        return redirect()->route('giftcards.create')->with('success', 'Categoría creada con éxito.');
     }
 
     /**
