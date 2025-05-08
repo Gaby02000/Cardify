@@ -8,7 +8,7 @@
     <link rel="icon" href="https://img.icons8.com/ios-filled/50/000000/bank-card-back-side.png" />
     <style>
         body {
-            background-color: #050f1b;
+            background-color: #142234;
             color: #a4cadc;
         }
 
@@ -17,18 +17,18 @@
         }
 
         .sidebar-bg {
-            background-color: #125681;
+            background-color: #163f47;
         }
 
         .main-bg {
-            background-color: #163f47;
+            background-color: #050f1b;
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <!-- Navbar -->
-    <nav class="px-6 py-4 flex justify-between items-center" style="background-color: #163f47; color: #a4cadc;">
+    <nav class="px-6 py-4 flex justify-between items-center" style="background-color: #050f1b; color: #a4cadc;">
         <div class="text-2xl font-bold">
             Cardify
         </div>
