@@ -31,9 +31,17 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
+        // if ($request->hasFile('image')) {
+        //     $data['image'] = $request->file('image')->store('giftcards', 'public');
+        // }
+
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('giftcards', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('images'), $filename);
+            $data['image'] = 'images/' . $filename;
         }
+        
 
         GiftCard::create($data);
 
