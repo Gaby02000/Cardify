@@ -31,10 +31,12 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('giftcards', 'public');
+      if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . $image->getClientOriginalName(); 
+            $image->move(public_path('images/giftcards'), $filename); 
+            $data['image'] = 'images/giftcards/' . $filename;
         }
-
         GiftCard::create($data);
 
         return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
