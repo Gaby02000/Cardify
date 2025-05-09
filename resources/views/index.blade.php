@@ -11,7 +11,7 @@
             <h2 class="text-2xl font-bold text-a4cadc mb-2">{{ $giftcard->title }}</h2>
             <p class="text-a4cadc mb-4">{{ $giftcard->description }}</p>
             <p class="text-a4cadc font-semibold text-lg mb-4">${{ number_format($giftcard->price, 2) }}</p>
-            <a href="{{ route('giftcards.show', $giftcard->id) }}" class="text-black font-bold py-2 px-4 rounded hover:text-a4cadc">Ver detalles</a>
+            <a href="#" class="sidebar-bg font-bold py-2 px-4 rounded hover:text-a4cadc">Ver detalles</a>
         </div>
         @endforeach
     </div>

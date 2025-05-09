@@ -62,7 +62,7 @@
         </div>
     @endif
 
-    <form action="{{ route('giftcards.store') }}" method="POST">
+    <form action="{{ route('giftcards.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <label for="id_category">Categoría</label>
@@ -85,8 +85,9 @@
         <label for="price">Precio</label>
         <input type="number" name="price" id="price" step="0.01" required>
 
-        <label for="image">URL de imagen</label>
-        <input type="url" name="image" id="image">
+        <label for="image">Imagen</label>
+        <input type="file" name="image" id="image" accept="image/*">
+
 
         <label for="stock">Stock</label>
         <input type="number" name="stock" id="stock" required>

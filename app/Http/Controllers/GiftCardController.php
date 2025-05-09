@@ -13,10 +13,11 @@ class GiftCardController extends Controller
         return view('index', compact('giftcards'));
     }
 
-    // public function create()
-    // {
-    //     return view('giftcards.create');
-    // }
+    public function create()
+    {
+        $categories = Category::all();
+        return view('giftcards.create', compact('categories'));
+    }
 
     public function store(Request $request)
     {
@@ -26,7 +27,7 @@ class GiftCardController extends Controller
             'description' => 'required|string',
             'amount' => 'required|numeric',
             'price' => 'required|numeric',
-            'image' => 'nullable|image',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'stock' => 'required|integer',
         ]);
 

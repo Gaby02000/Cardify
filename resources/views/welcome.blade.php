@@ -41,15 +41,6 @@
             <a href="#" class="hover-link transition">Giftcards</a>
             <a href="#" class="hover-link transition">Carrito</a>
             <a href="#" class="hover-link transition">Perfil</a>
-            <!-- Botón para agregar GiftCard -->
-            <a href="{{ route('giftcards.create') }}" 
-                class="inline-block mb-6 px-4 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
-                + Agregar GiftCard
-            </a>
-            <a href="{{ route('categories.create') }}" 
-                class="inline-block mb-4 px-4 py-2 bg-green-600 text-white font-semibold rounded hover:bg-green-700 transition">
-                + Agregar Categoría
-            </a> 
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -67,10 +58,13 @@
             </div>
 
             <nav class="flex flex-col space-y-4 text-a4cadc">
-                <a href="#" class="hover:text-yellow-300">Dashboard</a>
-                <a href="#" class="hover:text-yellow-300">Giftcards</a>
-                <a href="#" class="hover:text-yellow-300">Mis Compras</a>
-                <a href="#" class="hover:text-yellow-300">Configuración</a>
+                <a href="#">Dashboard</a>
+                <a href="#">Giftcards</a>
+                <a href="#">Mis Compras</a>
+                <a href="#">Configuración</a>
+                <!-- Botón para agregar GiftCard -->
+                <a href="{{ route('giftcards.create') }}" class="hover-link transition"> Agregar GiftCard</a>
+                <a href="{{ route('categories.create') }}" class="hover-link transition"> Agregar Categoría</a> 
             </nav>
         </aside>
 
