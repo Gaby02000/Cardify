@@ -31,7 +31,7 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
-      if ($request->hasFile('image')) {
+        if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = time() . '_' . $image->getClientOriginalName(); 
             $image->move(public_path('images/giftcards'), $filename); 
@@ -42,6 +42,7 @@ class GiftCardController extends Controller
         return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
     }
     
+
     public function show($id)
     {
         $giftcard = GiftCard::findOrFail($id);

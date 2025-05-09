@@ -3,97 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <title>Crear GiftCard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f3f4f6;
-            margin: 0;
-            padding: 20px;
+            background-color: #142234;
+            color: #a4cadc;
         }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .hover-link:hover {
+            color: #ffffff;
         }
-        h2 {
-            margin-bottom: 20px;
+        .sidebar-bg {
+            background-color: #163f47;
         }
-        label {
-            display: block;
-            margin: 12px 0 6px;
+        .main-bg {
+            background-color: #050f1b;
         }
-        input, select, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        button {
-            background: #3490dc;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #2779bd;
-        }
-        .error {
-            color: red;
-            margin-bottom: 10px;
+        .text-a4cadc {
+            color: #a4cadc;
         }
     </style>
 </head>
-<body>
-<div class="container">
-    <h2>Crear GiftCard</h2>
+<body class="min-h-screen flex items-center justify-center px-4 py-8">
 
-    @if ($errors->any())
-        <div class="error">
-            <strong>Errores:</strong>
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>• {{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+    <div class="w-full max-w-xl bg-[#050f1b] text-a4cadc rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold mb-6 text-center">Crear GiftCard</h2>
 
-    <form action="{{ route('giftcards.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
+        @if ($errors->any())
+            <div class="bg-red-500 text-white p-4 rounded mb-4">
+                <strong>Errores:</strong>
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>• {{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <label for="id_category">Categoría</label>
-        <select name="id_category" id="id_category" required>
-            <option value="">Seleccionar categoría</option>
-            @foreach ($categories as $category)
-                <option value="{{ $category->id }}">{{ $category->name }}</option>
-            @endforeach
-        </select>
+        <form action="{{ route('giftcards.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            @csrf
 
-        <label for="title">Título</label>
-        <input type="text" name="title" id="title" required>
+            <div>
+                <label for="id_category" class="block mb-1">Categoría</label>
+                <select name="id_category" id="id_category" required class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc">
+                    <option value="">Seleccionar categoría</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-        <label for="description">Descripción</label>
-        <textarea name="description" id="description"></textarea>
+            <div>
+                <label for="title" class="block mb-1">Título</label>
+                <input type="text" name="title" id="title" required class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
+            </div>
 
-        <label for="amount">Monto</label>
-        <input type="number" name="amount" id="amount" required>
+            <div>
+                <label for="description" class="block mb-1">Descripción</label>
+                <textarea name="description" id="description" rows="3" class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc"></textarea>
+            </div>
 
-        <label for="price">Precio</label>
-        <input type="number" name="price" id="price" step="0.01" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="amount" class="block mb-1">Monto</label>
+                    <input type="number" name="amount" id="amount" required class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
+                </div>
 
-        <label for="image">Imagen</label>
-        <input type="file" name="image" id="image" accept="image/*">
+                <div>
+                    <label for="price" class="block mb-1">Precio</label>
+                    <input type="number" name="price" id="price" step="0.01" required class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
+                </div>
+            </div>
 
+            <div>
+                <label for="image" class="block mb-1">Imagen</label>
+                <input type="file" name="image" id="image" accept="image/*" class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
+            </div>
 
-        <label for="stock">Stock</label>
-        <input type="number" name="stock" id="stock" required>
+            <div>
+                <label for="stock" class="block mb-1">Stock</label>
+                <input type="number" name="stock" id="stock" required class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
+            </div>
 
-        <button type="submit">Guardar GiftCard</button>
-    </form>
-</div>
+            <button type="submit" class="w-full bg-[#163f47] hover:bg-[#1e5d64] text-white py-2 rounded font-semibold transition">
+                Guardar GiftCard
+            </button>
+        </form>
+    </div>
+
 </body>
 </html>
