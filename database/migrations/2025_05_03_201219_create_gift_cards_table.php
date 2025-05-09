@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('gift_cards', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('id_category');
+            $table->string('title');
+            $table->text('description');
+            $table->decimal('amount', 8, 2);
+            $table->decimal('price', 8, 2);
+            $table->string('image')->nullable();
+            $table->integer('stock');
             $table->timestamps();
+
+            $table->foreign('id_category')->references('id')->on('categories');
         });
     }
 

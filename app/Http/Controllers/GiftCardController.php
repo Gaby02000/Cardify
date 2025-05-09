@@ -13,10 +13,10 @@ class GiftCardController extends Controller
         return view('index', compact('giftcards'));
     }
 
-    public function create()
-    {
-        return view('giftcards.create');
-    }
+    // public function create()
+    // {
+    //     return view('giftcards.create');
+    // }
 
     public function store(Request $request)
     {
