@@ -15,12 +15,17 @@
 - **Alejo Maximiliano Gonzalez**  
 - **Gabriel Federico Jose Gimenez Miguel**
 
-CREAR EL SEEDER:
+**CREAR EL SEEDER:**
 php artisan make:seeder UserSeeder
 php artisan make:seeder GiftCardSeeder
 
-EJECUTAR EL SEEDER:
+**EJECUTAR EL SEEDER:**
 php artisan db:seed
 
-REINICIAR COMPLETAMENTE LA BASE DE DATOS
+**REINICIAR COMPLETAMENTE LA BASE DE DATOS:**
 php artisan migrate:fresh --seed
+
+**USUARIO:** juan@example.com
+**CONTRASEÑA:** secreto123
+
+
