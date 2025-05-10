@@ -18,7 +18,7 @@ class GiftCardController extends Controller
         $categories = Category::all();
         return view('giftcards.create', compact('categories'));
     }
-
+    // Guardar los datos
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -31,18 +31,6 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
-        // if ($request->hasFile('image')) {
-        //     $data['image'] = $request->file('image')->store('giftcards', 'public');
-        // }
-
-        // if ($request->hasFile('image')) {
-        //     $file = $request->file('image');
-        //     $filename = time() . '_' . $file->getClientOriginalName();
-        //     $file->move(public_path('images'), $filename);
-        //     $data['image'] = 'images/' . $filename;
-        // }
-        
-
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $filename = time() . '_' . $image->getClientOriginalName(); 
@@ -54,8 +42,41 @@ class GiftCardController extends Controller
 
         return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
     }
-    
+    public function edit($id)
+    {
+        $giftcard = Giftcard::findOrFail($id);
+        $categories = Category::all(); 
+        return view('giftcards.edit', compact('giftcard', 'categories'));
+    }
 
+    // Actualizar los datos 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'amount' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'stock' => 'required|integer|min:0',
+            'id_category' => 'required|exists:categories,id',
+        ]);
+
+        $giftcard = Giftcard::findOrFail($id);
+        $giftcard->update($request->all());
+
+        return redirect()->route('giftcards.show', $giftcard->id)->with('success', 'Giftcard actualizada correctamente.');
+    }
+    // Eliminar la giftcard
+     public function destroy($id)
+    {
+        $giftcard = Giftcard::findOrFail($id);
+        $giftcard->delete();
+
+        return redirect()->route('giftcards.index')
+                         ->with('success', 'Giftcard eliminada correctamente.');
+    }
+    // Mostrar los detalles
     public function show($id)
     {
         $giftcard = GiftCard::findOrFail($id);
