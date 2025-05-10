@@ -14,7 +14,7 @@
                     <th class="py-2 px-3 border-b border-gray-600 w-[35%]">Descripción</th>
                     <th class="py-2 px-3 border-b border-gray-600 w-[10%]">Precio</th>
                     <th class="py-2 px-3 border-b border-gray-600 w-[7%]">Stock</th>
-                    <th class="py-2 px-3 border-b border-gray-600 w-[8%]">Acciones</th>
+                    <th class="py-2 px-3 border-b border-gray-600 w-[8%]">Detalle</th>
                 </tr>
             </thead>
             <tbody>
