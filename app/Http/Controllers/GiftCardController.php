@@ -35,25 +35,27 @@ class GiftCardController extends Controller
         //     $data['image'] = $request->file('image')->store('giftcards', 'public');
         // }
 
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('images'), $filename);
-            $data['image'] = 'images/' . $filename;
-        }
+        // if ($request->hasFile('image')) {
+        //     $file = $request->file('image');
+        //     $filename = time() . '_' . $file->getClientOriginalName();
+        //     $file->move(public_path('images'), $filename);
+        //     $data['image'] = 'images/' . $filename;
+        // }
         
 
-    //   if ($request->hasFile('image')) {
-    //         $image = $request->file('image');
-    //         $filename = time() . '_' . $image->getClientOriginalName(); 
-    //         $image->move(public_path('images/giftcards'), $filename); 
-    //         $data['image'] = 'images/giftcards/' . $filename;
-    //     }
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = time() . '_' . $image->getClientOriginalName(); 
+            $image->move(public_path('images/giftcards'), $filename); 
+            $data['image'] = 'images/giftcards/' . $filename;
+        }
+
         GiftCard::create($data);
 
         return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
     }
     
+
     public function show($id)
     {
         $giftcard = GiftCard::findOrFail($id);
