@@ -31,7 +31,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->route('giftcards.create')->with('success', 'Categoría creada con éxito.');
+        return redirect()->route('giftcards.index')->with('success', 'Categoría creada con éxito.');
     }
 
     /**

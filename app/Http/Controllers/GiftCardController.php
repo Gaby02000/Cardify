@@ -7,12 +7,20 @@ use Illuminate\Http\Request;
 
 class GiftCardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $giftcards = GiftCard::all();
+        $query = GiftCard::query();
+
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('title', 'like', '%' . $request->search . '%')
+                ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+
+        $giftcards = $query->get();
+
         return view('index', compact('giftcards'));
     }
-
+  
     public function create()
     {
         $categories = Category::all();

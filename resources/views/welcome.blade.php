@@ -37,10 +37,10 @@
             Cardify
         </div>
         <div class="space-x-6">
-            <a href="#" class="hover-link transition">Inicio</a>
+            <a href="{{ route('home') }}" class="hover-link transition">Inicio</a>
             <a href="#" class="hover-link transition">Giftcards</a>
             <a href="#" class="hover-link transition">Carrito</a>
-            <a href="#" class="hover-link transition">Perfil</a>
+            <a href="{{ route('users.show', Auth::user()->id) }}" class="hover-link transition">Perfil</a>
         </div>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
@@ -63,7 +63,7 @@
                 <a href="#">Mis Compras</a>
                 <a href="#">Configuración</a>
                 <!-- Botón para agregar GiftCard -->
-                <a href="{{ route('giftcards.create') }}" class="hover-link transition"> Agregar GiftCard</a>
+                <a href="{{ route('giftcards.create') }}" class="hover-link transition"> Agregar Tarjeta</a>
                 <a href="{{ route('categories.create') }}" class="hover-link transition"> Agregar Categoría</a> 
             </nav>
         </aside>
