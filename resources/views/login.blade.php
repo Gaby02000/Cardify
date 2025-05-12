@@ -70,7 +70,7 @@
             <a href="{{ route('password.request') }}" class="text-sm" style="color: #a4cadc;">¿Olvidaste tu contraseña?</a>
         </div>
 
-        <!-- Botón Registrarse -->
+        <!-- Botón Registrarse 
         <div class="mt-4">
             <a href="{{ route('register') }}" class="w-full block text-center py-2 font-semibold rounded transition"
                 style="background-color: #163f47; color: white;"
@@ -78,7 +78,7 @@
                 onmouseout="this.style.backgroundColor='#163f47'">
                 Registrarse
             </a>
-        </div>
+        </div> -->
 
     </div>
 </body>
