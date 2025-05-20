@@ -9,8 +9,9 @@ class GiftCardController extends Controller
 {
     public function index(Request $request)
     {
-        $query = GiftCard::with('category'); 
+        $query = GiftCard::with('category');
 
+        // Filtro por búsqueda
         if (!empty($request->search)) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'like', '%' . $request->search . '%')
@@ -18,16 +19,29 @@ class GiftCardController extends Controller
             });
         }
 
+        // Filtro por categoría
         if (!empty($request->category)) {
-            $query->where('id_category', $request->category); 
+            $query->where('id_category', $request->category);
         }
 
-        $giftcards = $query->paginate(10);
-        $categories = Category::all();
+        // Ordenamiento dinámico
+        $order = $request->order;
+        $direction = $request->direction;
 
+        $allowedOrders = ['price', 'stock']; 
+        $allowedDirections = ['asc', 'desc'];
+
+        if (in_array($order, $allowedOrders) && in_array($direction, $allowedDirections)) {
+            $query->orderBy($order, $direction);
+        }
+
+        // Paginación
+        $giftcards = $query->paginate(10)->withQueryString();
+
+        // Obtener todas las categorías para el filtro
+        $categories = Category::all();
         return view('index', compact('giftcards', 'categories'));
     }
-
   
     public function create()
     {
