@@ -11,7 +11,7 @@
             <p class="text-4xl font-bold">{{ $totalUsers }}</p>
         </div>
         <div class="bg-[#163f47] p-6 rounded shadow text-center text-white">
-            <h2 class="text-lg font-semibold">Tipos de GiftCards</h2>
+            <h2 class="text-lg font-semibold">GiftCards Disponibles</h2>
             <p class="text-4xl font-bold">{{ $totalGiftCards }}</p>
         </div>
         <div class="bg-[#163f47] p-6 rounded shadow text-center text-white">
@@ -20,26 +20,15 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-[#163f47] p-6 rounded shadow text-center text-white">
-            <h2 class="text-lg font-semibold">Stock Total de GiftCards</h2>
-            <p class="text-4xl font-bold">{{ $totalGiftCardStock }}</p>
-        </div>
-        <div class="bg-[#163f47] p-6 rounded shadow text-center text-white">
-            <h2 class="text-lg font-semibold">Valor Estimado en Stock</h2>
-            <p class="text-4xl font-bold">${{ number_format($totalGiftCardStockValue, 2) }}</p>
-        </div>
-    </div>
-
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-[#163f47] p-6 rounded shadow">
             <h2 class="text-xl font-semibold mb-4 text-white">Órdenes en los últimos 6 meses</h2>
-            <canvas id="ordersChart" class="w-full h-64"></canvas>
+            <canvas id="ordersChart" style="height: 200px; width: 100%;"></canvas>
         </div>
 
         <div class="bg-[#163f47] p-6 rounded shadow">
             <h2 class="text-xl font-semibold mb-4 text-white">Distribución Total</h2>
-            <canvas id="totalsPieChart" class="w-full h-64"></canvas>
+            <canvas id="totalsPieChart" style="height: 200px; width: 100%;"></canvas>
         </div>
     </div>
 
@@ -47,7 +36,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Gráfico de barras para órdenes últimos 6 meses
+    // Gráfico de barras: Órdenes en los últimos 6 meses
     const ctxOrders = document.getElementById('ordersChart').getContext('2d');
     const ordersChart = new Chart(ctxOrders, {
         type: 'bar',
@@ -61,22 +50,23 @@
             }]
         },
         options: {
-            responsive: true,
+            responsive: false,
+            maintainAspectRatio: false,
             scales: {
                 y: { beginAtZero: true }
             }
         }
     });
 
-    // Gráfico de torta para distribución total
+    // Gráfico de torta: Distribución Total
     const ctxPie = document.getElementById('totalsPieChart').getContext('2d');
     const totalsPieChart = new Chart(ctxPie, {
         type: 'pie',
         data: {
-            labels: ['Usuarios Registrados', 'Stock de GiftCards', 'Órdenes Emitidas'],
+            labels: ['Usuarios Registrados', 'GiftCards Disponibles', 'Órdenes Emitidas'],
             datasets: [{
                 label: 'Totales',
-                data: [{{ $totalUsers }}, {{ $totalGiftCardStock }}, {{ $totalOrders }}],
+                data: [{{ $totalUsers }}, {{ $totalGiftCards }}, {{ $totalOrders }}],
                 backgroundColor: [
                     '#4a90e2',
                     '#50e3c2',
@@ -86,7 +76,8 @@
             }]
         },
         options: {
-            responsive: true,
+            responsive: false,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',
