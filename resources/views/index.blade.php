@@ -32,7 +32,7 @@
                 <tr class="hover:bg-[#142234] transition-colors">
                     <td class="py-2 px-3 border-b border-gray-700">{{ $index + 1 }}</td>
                     <td class="py-2 px-3 border-b border-gray-700">
-                        <img src="{{ asset($giftcard->image) }}" alt="{{ $giftcard->title }}" class="h-12 w-auto max-w-full object-contain rounded">
+                        <img src="{{ $giftcard->image }}" alt="{{ $giftcard->title }}" class="h-12 w-auto max-w-full object-contain rounded">
                     </td>
                     <td class="py-2 px-3 border-b border-gray-700 font-semibold">{{ $giftcard->title }}</td>
                     <td class="py-2 px-3 border-b border-gray-700">{{ Str::limit($giftcard->description, 100) }}</td>

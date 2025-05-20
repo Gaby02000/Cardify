@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\Category;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
@@ -39,12 +40,17 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
+        // if ($request->hasFile('image')) {
+        //     $image = $request->file('image');
+        //     $filename = time() . '_' . $image->getClientOriginalName(); 
+        //     $image->move(public_path('images/giftcards'), $filename); 
+        //     $data['image'] = 'images/giftcards/' . $filename;
+        // }
+
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = time() . '_' . $image->getClientOriginalName(); 
-            $image->move(public_path('images/giftcards'), $filename); 
-            $data['image'] = 'images/giftcards/' . $filename;
-        }
+            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
+            $data['image'] = $uploadedFileUrl;
+        }        
 
         GiftCard::create($data);
 
@@ -71,7 +77,16 @@ class GiftCardController extends Controller
         ]);
 
         $giftcard = Giftcard::findOrFail($id);
-        $giftcard->update($request->all());
+        // $giftcard->update($request->all());
+
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
+            $data['image'] = $uploadedFileUrl;
+        }
+
+        $giftcard->update($data);
 
         return redirect()->route('giftcards.show', $giftcard->id)->with('success', 'Giftcard actualizada correctamente.');
     }
