@@ -35,6 +35,10 @@
             line-height: 1.6;
             color: #ffffff;
             margin-bottom: 20px;
+            text-align: center; /* ← centra el texto */
+        }
+        .cta {
+            text-align: center; /* ← centra el botón */
         }
         .cta-button {
             background-color: #163f47;
@@ -69,7 +73,7 @@
         </div>
 
         <div class="message">
-            <p>Hola, hemos recibido una solicitud para restablecer la contraseña de tu cuenta en Cardify.</p>
+            <p>Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en Cardify.</p>
             <p>Si no realizaste esta solicitud, ignora este correo.</p>
             <p>Si deseas restablecer tu contraseña, haz clic en el siguiente enlace:</p>
         </div>
@@ -77,7 +81,7 @@
         <div class="cta">
             <a href="{{ $resetUrl }}" class="cta-button">Restablecer Contraseña</a>
         </div>
-
+        
         <div class="footer">
             <p>Si no puedes hacer clic en el botón, copia y pega el siguiente enlace en tu navegador:</p>
             <p><a href="{{ $resetUrl }}">{{ $resetUrl }}</a></p>
