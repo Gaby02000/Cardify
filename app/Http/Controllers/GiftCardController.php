@@ -8,42 +8,42 @@ use Illuminate\Http\Request;
 
 class GiftCardController extends Controller
 {
-    public function index(Request $request)
+  public function index(Request $request)
     {
-        $query = GiftCard::with('category');
+        $query = Giftcard::with('category');
+        // Filtro por categoria
+
+        if ($category = $request->input('category')) {
+            $query->where('id_category', $category); 
+        }
 
         // Filtro por búsqueda
-        if (!empty($request->search)) {
-            $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('description', 'like', '%' . $request->search . '%');
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        // Filtro por categoría
-        if (!empty($request->category)) {
-            $query->where('id_category', $request->category);
+        // Ordenamiento
+        if ($request->has('sort')) {
+            $sortField = $request->input('sort');
+            $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+            if (in_array($sortField, ['price', 'stock'])) {
+                $query->orderBy($sortField, $direction);
+            }
         }
 
-        // Ordenamiento dinámico
-        $order = $request->order;
-        $direction = $request->direction;
+        $giftcards = $query->paginate(10);
 
-        $allowedOrders = ['price', 'stock']; 
-        $allowedDirections = ['asc', 'desc'];
-
-        if (in_array($order, $allowedOrders) && in_array($direction, $allowedDirections)) {
-            $query->orderBy($order, $direction);
+        if ($request->ajax()) {
+            return view('_table', compact('giftcards'))->render();
         }
 
-        // Paginación
-        $giftcards = $query->paginate(10)->withQueryString();
-
-        // Obtener todas las categorías para el filtro
         $categories = Category::all();
         return view('index', compact('giftcards', 'categories'));
     }
-  
+
     public function create()
     {
         $categories = Category::all();

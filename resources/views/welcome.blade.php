@@ -94,6 +94,6 @@
             @yield('content-base')
         </main>
     </div>
-
+@stack('scripts')
 </body>
 </html>
