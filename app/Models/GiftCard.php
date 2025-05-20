@@ -32,6 +32,6 @@ class GiftCard extends Model
 
     public function orderItems()
     {
-        return $this->belongsToMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'gift_card_id');
     }
 }

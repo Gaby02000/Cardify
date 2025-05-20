@@ -9,7 +9,6 @@ class OrderItemSeeder extends Seeder
 {
     public function run()
     {
-        // Ajusta los IDs según los datos que tengas en tu DB para que no fallen las relaciones
         OrderItem::create([
             'order_id' => 1,
             'cart_item_id' => 1,

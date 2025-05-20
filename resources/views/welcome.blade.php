@@ -60,14 +60,34 @@
         </div>
 
         <nav class="flex flex-col space-y-4 text-a4cadc">
-            <a href="#">Dashboard</a>
-            <a href="#">Giftcards</a>
-            <!--  
-            a href="#">Mis Compras</a>
-              -->
+
+            <a href="{{ route('dashboard.index') }}" class="hover-link transition">Dashboard</a>
             <a href="#">Configuración</a>
-            <a href="{{ route('giftcards.create') }}" class="hover-link transition">Agregar Tarjeta</a>
-            <a href="{{ route('categories.index') }}" class="hover-link transition">Categorías</a> <!-- Enlace simple -->
+
+            {{-- Tarjetas --}}
+            <div x-data="{ open: false }" class="flex flex-col space-y-1">
+                <button @click="open = !open" class="text-left hover-link transition focus:outline-none">
+                    Tarjetas
+                </button>
+                <div x-show="open" x-transition class="pl-4 flex flex-col space-y-1">
+                    <a href="{{ route('giftcards.index') }}" class="hover-link transition">Ver Tarjetas</a>
+                    <a href="{{ route('giftcards.create') }}" class="hover-link transition">Agregar Tarjeta</a>
+                </div>
+            </div>
+
+            {{-- Categorías --}}
+            <div x-data="{ open: false }" class="flex flex-col space-y-1">
+                <button @click="open = !open" class="text-left hover-link transition focus:outline-none">
+                    Categorías
+                </button>
+                <div x-show="open" x-transition class="pl-4 flex flex-col space-y-1">
+                    <a href="{{ route('categories.index') }}" class="hover-link transition">Ver Categorías</a>
+                    <a href="{{ route('categories.create') }}" class="hover-link transition">Agregar Categoría</a>
+                </div>
+            </div>
+
+            <a href="{{ route('orders.index') }}" class="hover-link transition">Órdenes Emitidas</a>
+
         </nav>
     </aside>
         @yield('content-base')

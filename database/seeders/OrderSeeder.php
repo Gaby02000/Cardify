@@ -10,7 +10,8 @@ class OrderSeeder extends Seeder
 {
     public function run()
     {
-        // Ajusta user_id y cart_id según datos existentes
+        Order::truncate();
+                
         Order::create([
             'user_id' => 1,
             'cart_id' => 1,

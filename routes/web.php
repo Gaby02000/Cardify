@@ -7,6 +7,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\RegisterController;
 use Mockery\Generator\StringManipulation\Pass\Pass;
 
@@ -32,10 +33,9 @@ Route::resource('/users', UserProfileController::class)
     ->only(['edit', 'update', 'show'])
     ->middleware('auth');
 
-
 // Para carrito y ordenes después
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index')->middleware('auth');
-Route::get('/orders', [OrderController::class, 'index'])->name('orders.index')->middleware('auth');
+Route::resource('/orders', OrderController::class)->middleware('auth');
 
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.submit');
@@ -57,6 +57,9 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
+
+Route::resource('dashboard', DashboardController::class)->only(['index'])->middleware('auth');
+
 
 Route::post('/logout', function () {
     Auth::logout();

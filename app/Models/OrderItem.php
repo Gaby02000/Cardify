@@ -29,6 +29,6 @@ class OrderItem extends Model
 
     public function giftCard()
     {
-        return $this->hasOne(GiftCard::class);
+        return $this->belongsTo(GiftCard::class, 'gift_card_id');
     }
 }
