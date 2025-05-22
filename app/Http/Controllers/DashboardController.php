@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\GiftCard;
+use App\Models\Category;
 use Carbon\Carbon;
 use DB;
 
@@ -17,13 +18,20 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        $connection = DB::getDriverName();
+
+        $dateFormatFunction = $connection === 'sqlite' 
+            ? "strftime('%m-%Y', created_at)" 
+            : "to_char(created_at, 'MM-YYYY')";
+
+        // Órdenes por mes (últimos 6 meses)
         $ordersPerMonth = Order::select(
-                DB::raw("strftime('%m-%Y', created_at) as month"),
+                DB::raw("$dateFormatFunction as month"),
                 DB::raw('count(*) as total')
             )
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('month')
-            ->orderBy('month')
+            ->orderBy('month', 'asc')
             ->get();
 
         $labels = $ordersPerMonth->pluck('month')->map(function($m){
@@ -32,26 +40,56 @@ class DashboardController extends Controller
 
         $data = $ordersPerMonth->pluck('total');
 
+        // Distribución de categorías por stock
+        $categoryDistribution = GiftCard::select('categories.name as category', DB::raw('SUM(gift_cards.stock) as total_stock'))
+            ->join('categories', 'categories.id', '=', 'gift_cards.id_category')
+            ->groupBy('categories.name')
+            ->orderByDesc('total_stock')
+            ->get();
+
+        $categoryLabels = $categoryDistribution->pluck('category')->toArray();
+        $categoryData = $categoryDistribution->pluck('total_stock')->toArray();
+
+        // Ventas por mes (últimos 6 meses)
+        $salesPerMonth = DB::table('orders')
+            ->select(
+                DB::raw("$dateFormatFunction as month"),
+                DB::raw('SUM(total_price) as total_sales')
+            )
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->groupBy('month')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $salesLabels = $salesPerMonth->pluck('month')->map(fn($m) => Carbon::createFromFormat('m-Y', $m)->format('M Y'));
+        $salesData = $salesPerMonth->pluck('total_sales');
+
+        // Totales generales
         $totalUsers = User::count();
         $totalOrders = Order::count();
         $totalGiftCards = GiftCard::count(); 
         $totalGiftCardStock = GiftCard::sum('stock'); 
-
         $totalGiftCardStockValue = GiftCard::sum(DB::raw('stock * amount'));
 
+        $totalSales = Order::sum('total_price');
+
         return view('dashboard.index', compact(
-            'labels',
-            'data',
+            'labels',            
+            'data',            
+            'salesLabels',       
+            'salesData',          
             'totalUsers',
             'totalOrders',
             'totalGiftCards',
             'totalGiftCardStock',
-            'totalGiftCardStockValue'
+            'totalGiftCardStockValue',
+            'categoryLabels',
+            'categoryData',
+            'totalSales' 
         ));
     }
-    /**
-     * Show the form for creating a new resource.
-     */
+
+
     public function create()
     {
         //

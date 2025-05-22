@@ -7,6 +7,9 @@
                 <th class="py-2 px-3 border-b border-gray-600 w-[16%]">Título</th>
                 <th class="py-2 px-3 border-b border-gray-600 w-[20%]">Descripción</th>
                 <th class="py-2 px-3 border-b border-gray-600 w-[15%]">Categoría</th>
+                <th class="sortable py-2 px-3 border-b border-gray-600 w-[10%] cursor-pointer" data-field="amount">
+                    Monto <span class="sort-icon inline-block ml-1 text-white font-bold text-xs"></span>
+                </th>
                 <th class="sortable py-2 px-3 border-b border-gray-600 w-[10%] cursor-pointer" data-field="price">
                     Precio <span class="sort-icon inline-block ml-1 text-white font-bold text-xs"></span>
                 </th>
@@ -26,6 +29,7 @@
                 <td class="py-2 px-3 border-b border-gray-700 font-semibold">{{ $giftcard->title }}</td>
                 <td class="py-2 px-3 border-b border-gray-700">{{ Str::limit($giftcard->description, 100) }}</td>
                 <td class="py-2 px-3 border-b border-gray-700">{{ $giftcard->category->name ?? 'Sin categoría' }}</td>
+                <td class="py-2 px-3 border-b border-gray-700">${{ number_format($giftcard->amount, 2) }}</td>
                 <td class="py-2 px-3 border-b border-gray-700">${{ number_format($giftcard->price, 2) }}</td>
                 <td class="py-2 px-3 border-b border-gray-700">{{ $giftcard->stock }}</td>
                 <td class="py-2 px-3 border-b border-gray-700">

@@ -8,11 +8,11 @@ use Illuminate\Http\Request;
 
 class GiftCardController extends Controller
 {
-  public function index(Request $request)
+    public function index(Request $request)
     {
         $query = Giftcard::with('category');
-        // Filtro por categoria
 
+        // Filtro por categoría
         if ($category = $request->input('category')) {
             $query->where('id_category', $category); 
         }
@@ -29,7 +29,8 @@ class GiftCardController extends Controller
         if ($request->has('sort')) {
             $sortField = $request->input('sort');
             $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
-            if (in_array($sortField, ['price', 'stock'])) {
+
+            if (in_array($sortField, ['price', 'stock', 'amount'])) {
                 $query->orderBy($sortField, $direction);
             }
         }
@@ -43,6 +44,7 @@ class GiftCardController extends Controller
         $categories = Category::all();
         return view('index', compact('giftcards', 'categories'));
     }
+
 
     public function create()
     {

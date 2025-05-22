@@ -12,13 +12,21 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Filtra las categorías por nombre
-        $search = $request->input('search');
-        $categories = Category::where('name', 'like', "%{$search}%")
-            ->get();
-        
+        $query = \App\Models\Category::query();
+
+        if ($search = $request->input('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $categories = $query->paginate(10);
+
+        if ($request->ajax()) {
+            return view('categories._table', compact('categories'))->render();
+        }
+
         return view('categories.index', compact('categories'));
     }
+
 
     /**
      * Show the form for creating a new resource.
