@@ -12,7 +12,6 @@ class CartSeeder extends Seeder
         for ($i = 1; $i <= 15; $i++) {
             Cart::create([
                 'user_id' => rand(1, 5),  // Número aleatorio entre 1 y 5
-                'order_id' => null,       // Carro sin orden aún
             ]);
         }
     }

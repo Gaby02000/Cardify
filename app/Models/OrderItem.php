@@ -24,7 +24,7 @@ class OrderItem extends Model
 
     public function cartItem()
     {
-        return $this->hasOne(CartItem::class);
+        return $this->belongsTo(CartItem::class);
     }
 
     public function giftCard()
