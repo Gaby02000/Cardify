@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
@@ -51,6 +52,7 @@ class GiftCardController extends Controller
         $categories = Category::all();
         return view('giftcards.create', compact('categories'));
     }
+
     // Guardar los datos
     public function store(Request $request)
     {
@@ -60,26 +62,61 @@ class GiftCardController extends Controller
             'description' => 'required|string',
             'amount' => 'required|numeric',
             'price' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'stock' => 'required|integer',
         ]);
 
-        // if ($request->hasFile('image')) {
-        //     $image = $request->file('image');
-        //     $filename = time() . '_' . $image->getClientOriginalName(); 
-        //     $image->move(public_path('images/giftcards'), $filename); 
-        //     $data['image'] = 'images/giftcards/' . $filename;
-        // }
-
         if ($request->hasFile('image')) {
-            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
-            $data['image'] = $uploadedFileUrl;
-        }        
+            $uploadedFile = $request->file('image');
+
+            $cloudName = config('cloudinary.cloud.cloud_name');
+            $apiKey = config('cloudinary.cloud.api_key');
+
+            // Log::info('Cloudinary config:', [
+            //     'cloud_name' => config('cloudinary.cloud.cloud_name'),
+            //     'api_key' => config('cloudinary.cloud.api_key'),
+            // ]);
+
+            $apiSecret = config('cloudinary.cloud.api_secret');
+            $folder = 'giftcards';
+            $slugTitle = \Illuminate\Support\Str::slug($request->title);
+            $timestamp = time();
+            $publicId = "{$slugTitle}_{$timestamp}";
+
+            $paramsToSign = "folder={$folder}&public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+            $signature = hash('sha256', $paramsToSign);
+
+            $response = \Illuminate\Support\Facades\Http::asMultipart()->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload", [
+                [
+                    'name'     => 'file',
+                    'contents' => fopen($uploadedFile->getRealPath(), 'r'),
+                    'filename' => $uploadedFile->getClientOriginalName(),
+                ],
+                ['name' => 'api_key', 'contents' => $apiKey],
+                ['name' => 'timestamp', 'contents' => $timestamp],
+                ['name' => 'folder', 'contents' => $folder],
+                ['name' => 'public_id', 'contents' => $publicId],
+                ['name' => 'signature', 'contents' => $signature],
+            ]);
+
+            // Ejemplo:
+            // Log::info('Firmando parámetros:', ['firma' => $signature]);
+            // Log::info('Respuesta Cloudinary:', ['body' => $response->body()]);
+
+
+            if (!$response->successful()) {
+                return back()->withErrors(['image' => 'Error al subir la imagen a Cloudinary.']);
+            }
+
+            $result = $response->json();
+            $data['image'] = $result['secure_url'];
+        }
 
         GiftCard::create($data);
 
         return redirect()->route('giftcards.index')->with('success', 'GiftCard creada con éxito.');
     }
+
     public function edit($id)
     {
         $giftcard = Giftcard::findOrFail($id);
