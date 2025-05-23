@@ -5,9 +5,10 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use App\Models\Category;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class GiftCardController extends Controller
 {
+
     public function index(Request $request)
     {
         $query = Giftcard::with('category');
@@ -17,11 +18,17 @@ class GiftCardController extends Controller
             $query->where('id_category', $category); 
         }
 
-        // Filtro por búsqueda
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                ->orWhere('description', 'like', "%{$search}%");
+            $driver = DB::getDriverName();
+
+            $query->where(function ($q) use ($search, $driver) {
+                if ($driver === 'pgsql') {
+                    $q->whereRaw('title ILIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('description ILIKE ?', ["%{$search}%"]);
+                } else {
+                    $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+                }
             });
         }
 
@@ -44,6 +51,7 @@ class GiftCardController extends Controller
         $categories = Category::all();
         return view('index', compact('giftcards', 'categories'));
     }
+
 
 
     public function create()
