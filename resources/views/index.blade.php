@@ -50,7 +50,7 @@
             page
         });
 
-        fetch(`{{ route('giftcards.index') }}?${params.toString()}`, {
+        fetch(`/giftcards?${params.toString()}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(res => res.text())
