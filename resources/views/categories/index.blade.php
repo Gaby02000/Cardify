@@ -29,7 +29,7 @@
             page
         });
 
-        fetch(`{{ route('categories.index') }}?${params.toString()}`, {
+        fetch(`/categories?${params.toString()}`, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
         .then(res => res.text())
