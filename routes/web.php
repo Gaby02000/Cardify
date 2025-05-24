@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Pdf\OrderPdfController;
 use Mockery\Generator\StringManipulation\Pass\Pass;
 
 // Route::get('/', function () {
@@ -60,6 +61,8 @@ Route::post('register', [RegisterController::class, 'register']);
 
 Route::resource('dashboard', DashboardController::class)->only(['index'])->middleware('auth');
 
+Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])
+     ->name('orders.pdf');
 
 Route::post('/logout', function () {
     Auth::logout();

@@ -101,7 +101,6 @@
 
             <nav class="flex flex-col space-y-4 text-a4cadc">
                 <a href="{{ route('dashboard.index') }}" class="hover-link transition">Dashboard</a>
-                <a href="#">Configuración</a>
 
                 <!-- Tarjetas -->
                 <div x-data="{ open: false }" class="flex flex-col space-y-1">

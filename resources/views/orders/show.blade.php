@@ -37,5 +37,9 @@
             </table>
         </div>
     @endif
+    <a href="{{ route('orders.pdf', $order->id) }}"
+        class="mt-6 inline-block bg-[#1e5d64] text-white px-3 py-2 rounded hover:bg-[#2a7d89] transition">
+        Descargar PDF
+    </a>
 </div>
 @endsection
