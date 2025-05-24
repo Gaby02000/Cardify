@@ -24,11 +24,11 @@ class OrderItem extends Model
 
     public function cartItem()
     {
-        return $this->hasOne(CartItem::class);
+        return $this->belongsTo(CartItem::class);
     }
 
     public function giftCard()
     {
-        return $this->hasOne(GiftCard::class);
+        return $this->belongsTo(GiftCard::class, 'gift_card_id');
     }
 }

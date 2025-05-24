@@ -11,7 +11,6 @@ class CartItem extends Model
 
     protected $fillable = [
         'cart_id',
-        'order_item_id',
         'gift_card_id',
         'quantity'
     ];
@@ -28,6 +27,6 @@ class CartItem extends Model
 
     public function giftCard()
     {
-        return $this->hasOne(GiftCard::class);
+        return $this->belongsTo(GiftCard::class);
     }
 }
