@@ -113,7 +113,15 @@ class GiftCardController extends Controller
                 // $data['image'] = $uploadResponse->getSecurePath();
 
                 $result = $uploadResponse->json();
-                $data['image'] = $result['secure_url'];
+                
+                Log::info('Respuesta Cloudinary:', ['json' => $result]);
+
+                if (isset($result['secure_url'])) {
+                    $data['image'] = $result['secure_url'];
+                } else {
+                    return back()->withErrors(['image' => 'Cloudinary error: ' . ($result['error']['message'] ?? 'Unknown error')]);
+                }
+                //$data['image'] = $result->getSecurePath();
             } catch (\Exception $e) {
                 return back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
             }
@@ -160,6 +168,7 @@ class GiftCardController extends Controller
 
         return redirect()->route('giftcards.show', $giftcard->id)->with('success', 'Giftcard actualizada correctamente.');
     }
+    
     // Eliminar la giftcard
      public function destroy($id)
     {
