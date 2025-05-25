@@ -7,6 +7,8 @@ use App\Models\Category;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 class GiftCardController extends Controller
 {
 
@@ -53,8 +55,6 @@ class GiftCardController extends Controller
         return view('index', compact('giftcards', 'categories'));
     }
 
-
-
     public function create()
     {
         $categories = Category::all();
@@ -74,50 +74,51 @@ class GiftCardController extends Controller
             'stock' => 'required|integer',
         ]);
 
+        $slugTitle = Str::slug($data['title']);
+        $timestamp = time();
+        $publicId = "{$slugTitle}_{$timestamp}";
+        $folder = "giftcards";
+        $resource_type = 'image';
+
+        $cloudName = config('cloudinary.cloud.cloud_name');
+        $apiKey = config('cloudinary.cloud.api_key');
+        $apiSecret = config('cloudinary.cloud.api_secret');
+        $paramsToSign = "folder={$folder}&public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
+        $signature = hash('sha256', $paramsToSign);
+
         if ($request->hasFile('image')) {
-            $uploadedFile = $request->file('image');
+            try {
+                $uploadedFile = $request->file('image');
 
-            $cloudName = config('cloudinary.cloud.cloud_name');
-            $apiKey = config('cloudinary.cloud.api_key');
+                // $uploadResponse = Cloudinary::upload($uploadedFile->getRealPath(), [
+                $uploadResponse = \Illuminate\Support\Facades\Http::asMultipart()->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload", [
+                    // 'folder' => $folder,
+                    // 'public_id' => $publicId,
+                    [
+                        'name'     => 'file',
+                        'contents' => fopen($uploadedFile->getRealPath(), 'r'),
+                        'filename' => $uploadedFile->getClientOriginalName(),
+                    ],
+                    ['name' => 'api_key', 'contents' => $apiKey],
+                    ['name' => 'timestamp', 'contents' => $timestamp],
+                    ['name' => 'folder', 'contents' => $folder],
+                    ['name' => 'public_id', 'contents' => $publicId],
+                    ['name' => 'signature', 'contents' => $signature],
+                ]);
+                    
+                // Log::info('Firmando parámetros:', ['firma' => $signature]);
+                Log::info('Respuesta Cloudinary:', ['body' => $uploadResponse->body()]);
 
-            // Log::info('Cloudinary config:', [
-            //     'cloud_name' => config('cloudinary.cloud.cloud_name'),
-            //     'api_key' => config('cloudinary.cloud.api_key'),
-            // ]);
+                // $data['image'] = $uploadResponse['secure_url'];
+                // $data['image'] = $uploadResponse->getSecurePath();
 
-            $apiSecret = config('cloudinary.cloud.api_secret');
-            $folder = 'giftcards';
-            $slugTitle = \Illuminate\Support\Str::slug($request->title);
-            $timestamp = time();
-            $publicId = "{$slugTitle}_{$timestamp}";
-
-            $paramsToSign = "folder={$folder}&public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
-            $signature = hash('sha256', $paramsToSign);
-
-            $response = \Illuminate\Support\Facades\Http::asMultipart()->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload", [
-                [
-                    'name'     => 'file',
-                    'contents' => fopen($uploadedFile->getRealPath(), 'r'),
-                    'filename' => $uploadedFile->getClientOriginalName(),
-                ],
-                ['name' => 'api_key', 'contents' => $apiKey],
-                ['name' => 'timestamp', 'contents' => $timestamp],
-                ['name' => 'folder', 'contents' => $folder],
-                ['name' => 'public_id', 'contents' => $publicId],
-                ['name' => 'signature', 'contents' => $signature],
-            ]);
-
-            // Ejemplo:
-            // Log::info('Firmando parámetros:', ['firma' => $signature]);
-            // Log::info('Respuesta Cloudinary:', ['body' => $response->body()]);
-
-
-            if (!$response->successful()) {
-                return back()->withErrors(['image' => 'Error al subir la imagen a Cloudinary.']);
+                $result = $uploadResponse->json();
+                $data['image'] = $result['secure_url'];
+            } catch (\Exception $e) {
+                return back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
             }
-
-            $result = $response->json();
-            $data['image'] = $result['secure_url'];
+        } else {
+            Log::info('ℹ No se recibió archivo de imagen');
         }
 
         GiftCard::create($data);
