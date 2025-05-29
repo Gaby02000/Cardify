@@ -72,10 +72,18 @@
                        class="w-full p-2 rounded bg-[#142234] border border-gray-600 text-a4cadc" />
             </div>
 
-            <button type="submit"
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+               
+
+                <a href="{{ route('giftcards.show', $giftcard->id) }}"
+                    class="text-center bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                        Descartar Cambios
+                </a> 
+                <button type="submit"
                     class="w-full bg-[#163f47] hover:bg-[#1e5d64] text-white py-2 rounded font-semibold transition">
-                Guardar Cambios
-            </button>
+                        Guardar Cambios
+                </button>
+            </div>
         </form>
     </div>
 </div>
