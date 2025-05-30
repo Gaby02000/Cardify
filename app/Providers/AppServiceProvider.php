@@ -20,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if(config('app.env' !== 'local')) {
+        # Log::info('app.env:', ['body' => $uploadResponse->body()]);
+        if(config('app.env') !== 'local') {
             URL::forceScheme('https');
         }
     }
