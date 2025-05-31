@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            <div class="mt-8 grid grid-cols-2 gap-4">
+            <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <a href="{{ route('categories.edit', $category->id) }}"
                    class="text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition">
                     Editar
@@ -34,6 +34,16 @@
                    class="text-center bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
                     Volver al listado
                 </a>
+
+                <form action="{{ route('categories.destroy', $category->id) }}" method="POST"
+                    onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta categoría?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold transition">
+                        Eliminar
+                    </button>
+                </form>
             </div>
         </div>
     </div>

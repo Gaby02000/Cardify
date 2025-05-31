@@ -44,7 +44,7 @@ class CategoryController extends Controller
 
         Category::create($validated);
 
-        return redirect()->route('giftcards.index')->with('success', 'Categoría creada con éxito.');
+        return redirect()->route('categories.index')->with('success', 'Categoría creada con éxito.');
     }
 
     /**
@@ -83,6 +83,11 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
+        if ($category->giftCards()->count() > 0) {
+            return redirect()->route('categories.show', $category->id)
+                             ->with('error', 'No se puede eliminar la categoría porque tiene gift cards asociadas.');
+        }
+
         $category->delete();
 
         return redirect()->route('categories.index')

@@ -136,6 +136,18 @@
 
         <!-- Contenido dinámico -->
         <main class="flex-1 p-8 overflow-auto">
+            @if (session('success'))
+                <div class="mb-4 p-4 rounded bg-green-600 text-white text-sm text-center max-w-xl mx-auto">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-4 p-4 rounded bg-red-600 text-white text-sm text-center max-w-xl mx-auto">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @yield('content-base')
         </main>
     </div>
