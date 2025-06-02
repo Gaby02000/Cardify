@@ -64,6 +64,22 @@
                 Ingresar
             </button>
         </form>
+
+        <!-- Olvidaste tu contraseña -->
+        <div class="text-center mt-4">
+            <a href="{{ route('password.request') }}" class="text-sm" style="color: #a4cadc;">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Botón Registrarse 
+        <div class="mt-4">
+            <a href="{{ route('register') }}" class="w-full block text-center py-2 font-semibold rounded transition"
+                style="background-color: #163f47; color: white;"
+                onmouseover="this.style.backgroundColor='#050f1b'"
+                onmouseout="this.style.backgroundColor='#163f47'">
+                Registrarse
+            </a>
+        </div> -->
+
     </div>
 </body>
 </html>

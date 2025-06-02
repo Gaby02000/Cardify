@@ -22,7 +22,7 @@ class GiftCard extends Model
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, "id_category");
     }
 
     public function cartItems()
@@ -32,6 +32,6 @@ class GiftCard extends Model
 
     public function orderItems()
     {
-        return $this->belongsToMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'gift_card_id');
     }
 }

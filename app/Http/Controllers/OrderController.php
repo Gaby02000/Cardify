@@ -12,8 +12,10 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+        $orders = Order::with(['user'])->latest()->get();
+        return view('orders.index', compact('orders'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -36,7 +38,9 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        //
+        $order->load('user', 'orderItems.giftCard');
+
+        return view('orders.show', compact('order'));
     }
 
     /**

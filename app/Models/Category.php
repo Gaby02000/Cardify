@@ -15,6 +15,6 @@ class Category extends Model
 
     public function giftCards()
     {
-        return $this->hasMany(GiftCard::class);
+        return $this->hasMany(GiftCard::class, 'id_category');
     }
 }

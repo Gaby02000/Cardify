@@ -26,7 +26,7 @@ class Order extends Model
 
     public function cart()
     {
-        return $this->hasOne(Cart::class);
+        return $this->belongsTo(Cart::class);
     }
 
     public function orderItems()
