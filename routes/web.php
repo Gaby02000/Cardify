@@ -11,6 +11,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Pdf\OrderPdfController;
 use Mockery\Generator\StringManipulation\Pass\Pass;
+use App\Http\Controllers\Api\CategoryApiController;
+use App\Http\Controllers\Api\GiftCardApiController;
+
 
 // Route::get('/', function () {
 //     return view('welcome');
@@ -63,6 +66,10 @@ Route::resource('dashboard', DashboardController::class)->only(['index'])->middl
 
 Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])
      ->name('orders.pdf');
+Route::prefix('example')->group(function () {
+    Route::apiResource('giftcards', GiftCardApiController::class)->only(['index', 'show']);
+    Route::apiResource('categories', CategoryApiController::class)->only(['index', 'show']);
+});
 
 Route::post('/logout', function () {
     Auth::logout();
