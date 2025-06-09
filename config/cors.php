@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['apis/*'],
+    'paths' => ['apis/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
     // 'allowed_origins' => ['http://localhost:5173', 'https://cardify-frontend-git-dev-gaby02000s-projects.vercel.app'],
     'allowed_origins' => ['*'],
