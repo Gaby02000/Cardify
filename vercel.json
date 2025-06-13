@@ -7,16 +7,6 @@
         "runtime": "vercel-php@0.6.1"
       }
     },
-    "headers": [
-      {
-        "source": "/apis/(.*)",
-        "headers": [
-          { "key": "Access-Control-Allow-Origin", "value": "https://cardify-frontend-git-dev-gaby02000s-projects.vercel.app" },
-          { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
-          { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
-        ]
-      }
-    ],
     "routes": [
       {
         "src": "/(css|js|vendor|assets|build)/(.*)",
