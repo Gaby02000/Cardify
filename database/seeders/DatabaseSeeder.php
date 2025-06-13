@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         // Ejecuta los seeders en orden para respetar relaciones y dependencias
         $this->call([
             UserSeeder::class,
+            UserClientSeeder::class,
             CategorySeeder::class,
             GiftCardSeeder::class,
             CartSeeder::class,

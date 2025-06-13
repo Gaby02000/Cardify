@@ -9,10 +9,13 @@ class CartSeeder extends Seeder
 {
     public function run()
     {
+        Cart::truncate();
+
         for ($i = 1; $i <= 15; $i++) {
             Cart::create([
-                'user_id' => rand(1, 5),  // Número aleatorio entre 1 y 5
+                'user_client_id' => rand(1, 5), // 👈 usa user_client_id en vez de user_id
             ]);
         }
     }
 }
+
