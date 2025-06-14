@@ -38,7 +38,7 @@ class GiftCardApiController extends Controller
             }
         }
 
-        return response()->json($query->paginate(10));
+        return response()->json($query->paginate(52));
     }
 
     public function show($id)
