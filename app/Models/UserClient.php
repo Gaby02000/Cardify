@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // 👈 Importante para autenticación
+use Illuminate\Foundation\Auth\User as Authenticatable; 
 use Illuminate\Notifications\Notifiable;
 
-class UserClient extends Authenticatable // 👈 Extiende de Authenticatable, no de Model
+class UserClient extends Authenticatable 
 {
     use HasFactory, Notifiable;
 
-    protected $table = 'user_clients'; // 👈 Si el nombre no sigue la convención, explícitalo
+    protected $table = 'user_clients'; 
 
     protected $fillable = [
         'name',
@@ -27,7 +27,6 @@ class UserClient extends Authenticatable // 👈 Extiende de Authenticatable, no
         'email_verified_at' => 'datetime',
     ];
 
-    // 🔁 Relaciones
 
     public function cart()
     {
