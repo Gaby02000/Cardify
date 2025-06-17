@@ -7,24 +7,26 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CartItemApiController extends Controller
 {
-    public function storeOrCreateCart(Request $request)
+   public function storeOrCreateCart(Request $request)
     {
         $request->validate([
             'gift_card_id' => 'required|exists:gift_cards,id',
             'quantity' => 'required|integer|min:1'
         ]);
 
-        // Obtener o crear carrito del usuario autenticado
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['message' => 'No autenticado', $user], 401);
-        }
-        $cart = Cart::firstOrCreate(['user_id' => $user->id]);
+        $user = Auth::guard('user_client')->user();
 
-        // Verificar si ya existe ese ítem en el carrito
+        if ($user) {
+            $cart = Cart::firstOrCreate(['user_client_id' => $user->id]);
+        } else {
+            $sessionId = $request->session()->getId();
+            $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
+        }
+
         $existingItem = CartItem::where('cart_id', $cart->id)
             ->where('gift_card_id', $request->gift_card_id)
             ->first();
@@ -57,12 +59,27 @@ class CartItemApiController extends Controller
 
         return response()->json([
             'message' => 'Cantidad actualizada',
-            'data' => $cartItem
+            'data' => $cartItem, 200
         ]);
     }
 
-    public function destroy(CartItem $cartItem)
+   public function destroy(Request $request, CartItem $cartItem)
     {
+        $user = Auth::guard('user_client')->user();
+        $sessionId = $request->session()->getId();
+
+        $cart = $cartItem->cart;
+
+        if ($user) {
+            if ($cart->user_client_id !== $user->id) {
+                return response()->json(['error' => 'No autorizado'], 403);
+            }
+        } else {
+            if ($cart->session_id !== $sessionId) {
+                return response()->json(['error' => 'No autorizado'], 403);
+            }
+        }
+
         $cartItem->delete();
 
         return response()->json([
@@ -70,13 +87,16 @@ class CartItemApiController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json(['message' => 'No autenticado'], 401);
+        $user = Auth::guard('user_client')->user();
+
+        if ($user) {
+            $cart = Cart::with('cartItems.giftCard')->where('user_client_id', $user->id)->first();
+        } else {
+            $sessionId = $request->session()->getId();
+            $cart = Cart::with('cartItems.giftCard')->where('session_id', $sessionId)->first();
         }
-        $cart = Cart::with('cartItems.giftCard')->where('user_id', $user->id)->first();
 
         return response()->json([
             'cart' => $cart

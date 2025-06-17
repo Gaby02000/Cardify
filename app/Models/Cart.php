@@ -10,12 +10,13 @@ class Cart extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id'
+        'user_id',
+        'session_id', // <- para carritos anónimos
     ];
 
     public function user()
     {
-        return $this->belongsTo(UserClient::class, 'user_client_id');
+        return $this->belongsTo(UserClient::class, 'user_id');
     }
 
     public function order() 
@@ -25,6 +26,6 @@ class Cart extends Model
 
     public function cartItems()
     {
-        return $this->hasMany(CartItem::class);
+        return $this->hasMany(CartItem::class, 'cart_id');
     }
 }

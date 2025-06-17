@@ -14,7 +14,7 @@ class UserClientSeeder extends Seeder {
             UserClient::create([
                 'name' => "Cliente $i",
                 'email' => "cliente$i@example.com",
-                'password' => Hash::make('password$i'),
+                'password' => Hash::make("password$i"),
             ]);
         }
     }

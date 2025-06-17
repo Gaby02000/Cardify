@@ -8,41 +8,44 @@ use Illuminate\Http\Request;
 use App\Models\UserClient;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class LoginApiController extends Controller
 {
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required', 'string'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-    $user = UserClient::where('email', $credentials['email'])->first();
+        $user = UserClient::where('email', $credentials['email'])->first();
 
-    if (!$user) {
-        return response()->json(['message' => 'Usuario no encontrado'], 401);
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 401);
+        }
+
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return response()->json(['message' => 'Credenciales inválidas'], 401);
+        }
+
+        Auth::guard('user_client')->login($user);
+        $request->session()->regenerate();
+        return response()->json([
+            'message' => 'Login exitoso',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,200
+            ],
+        ]);
     }
-    if (!Hash::check($credentials['password'], $user->password)) {
-        return response()->json(['message' => 'Credenciales inválidas'], 401);
-    }
-
-    $request->session()->put('user_client_id', $user->id);
-
-    return response()->json([
-        'message' => 'Login exitoso',
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ],
-    ]);
-}
+    
 
 
     public function logout(Request $request)
     {
-        $request->session()->forget('user_client_id');
+        Auth::guard('user_client')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -8,51 +8,95 @@ use App\Models\OrderItem;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class OrderApiController extends Controller
 {
-    public function store(Request $req)
+    public function store(Request $request)
     {
-        $cart = Cart::where('user_id', $req->user()->id)
-                    ->with('cartItems.giftCard')
-                    ->firstOrFail();
+        $user = Auth::guard('user_client')->user();
+        $userId = $user?->id;
 
-        return DB::transaction(function () use ($cart, $req) {
+        if (!$userId) {
+            return response()->json(['message' => 'No autenticado'], 401);
+        }
+
+        // Obtener el carrito con sus items y giftCards relacionados
+        $cart = Cart::where('user_client_id', $userId)
+            ->with('cartItems.giftCard')
+            ->first();
+
+        if (!$cart || $cart->cartItems->isEmpty()) {
+            return response()->json(['message' => 'Carrito vacío o no encontrado'], 400);
+        }
+
+        $order = DB::transaction(function () use ($cart, $userId) {
             $total = 0;
-            foreach ($cart->cartItems as $ci) {
-                $total += $ci->giftCard->price * $ci->quantity;
+            foreach ($cart->cartItems as $item) {
+                $total += $item->giftCard->price * $item->quantity;
             }
 
+            // Crear la orden
             $order = Order::create([
-                'user_id' => $cart->user_id,
-                'cart_id' => $cart->id,
-                'total_price' => $total,
-                'status' => 'pending',
-                'created_at' => now(),
+                'user_client_id' => $userId,
+                'cart_id'        => $cart->id,
+                'total_price'    => $total,
+                'status'         => 'paid',
+                'created_at'     => now(),
             ]);
 
-            foreach ($cart->cartItems as $ci) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'cart_item_id' => $ci->id,
-                    'gift_card_id' => $ci->gift_card_id,
-                    'quantity' => $ci->quantity,
-                    'price' => $ci->giftCard->price
+            // Crear orderItems asociados a la orden usando la relación
+            foreach ($cart->cartItems as $item) {
+                $order->orderItems()->create([
+                    'cart_item_id' => $item->id,
+                    'gift_card_id' => $item->gift_card_id,
+                    'quantity'     => $item->quantity,
+                    'price'        => $item->giftCard->price,
                 ]);
             }
 
-            // opcional: vaciar carrito
+            // Vaciar el carrito
             $cart->cartItems()->delete();
 
-            return response()->json($order->load('orderItems.giftCard'), 201);
+            return $order;
         });
-    }
 
-    public function show(Request $req, Order $order)
+        // Recargar la orden con sus orderItems y giftCards relacionados
+        $order = $order->fresh('orderItems.giftCard');
+
+       return response()->json([
+            'message' => 'Orden creada y pagada exitosamente',
+            'order'   => [
+                'id' => $order->id,
+                'total_price' => $order->total_price,
+                'items' => $order->orderItems->map(function ($item) {
+                    return [
+                        'quantity' => $item->quantity,
+                        'price' => $item->price,
+                        'gift_card' => [
+                            'id' => $item->giftCard->id,
+                            'title' => $item->giftCard->title,
+                            'price' => $item->giftCard->price,
+                            // ...otros campos si querés
+                        ]
+                    ];
+                })
+            ]
+        ], 201);
+        }
+
+
+
+    public function show(Request $request, Order $order)
     {
-        $this->authorize('view', $order);
+        $user = Auth::guard('user_client')->user();
+
+        if ($order->user_client_id !== $user?->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
 
         $order->load('orderItems.giftCard');
+
         return response()->json($order);
     }
 }
