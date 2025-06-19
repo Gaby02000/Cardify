@@ -22,7 +22,7 @@ class OrderApiController extends Controller
         }
 
         // Obtener el carrito con sus items y giftCards relacionados
-        $cart = Cart::where('user_client_id', $userId)
+        $cart = Cart::where('user_id', $userId)
             ->with('cartItems.giftCard')
             ->first();
 
