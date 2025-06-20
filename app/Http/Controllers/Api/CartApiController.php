@@ -8,6 +8,7 @@ use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use App\Models\GiftCard;
 
 class CartApiController extends Controller
 {
@@ -60,6 +61,17 @@ class CartApiController extends Controller
         $user = Auth::guard('user_client')->user();
         $userId = $user?->id;
         $sessionId = $request->session()->getId();
+        
+        $quantityToAdd = $request->quantity ?? 1;
+
+        $giftCard = GiftCard::find($request->gift_card_id);
+
+        if ($quantityToAdd > $giftCard->stock) { //chequear stock
+            return response()->json([
+                'error' => 'No hay suficiente stock disponible.',
+                'available_stock' => $giftCard->stock,
+            ], 422);
+        }
 
         if ($userId) { // Buscar carrito existente del usuario o crear
             $cart = Cart::firstOrCreate(['user_client_id' => $userId]);
@@ -81,7 +93,7 @@ class CartApiController extends Controller
         } else {
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
         }
-
+        
         $item = CartItem::firstOrNew([
             'cart_id' => $cart->id,
             'gift_card_id' => $request->gift_card_id,
