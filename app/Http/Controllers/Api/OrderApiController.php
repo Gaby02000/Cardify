@@ -9,10 +9,11 @@ use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OrderApiController extends Controller
 {
-    public function store(Request $request)
+  public function store()
     {
         $user = Auth::guard('user_client')->user();
         $userId = $user?->id;
@@ -21,52 +22,98 @@ class OrderApiController extends Controller
             return response()->json(['message' => 'No autenticado'], 401);
         }
 
-        // Obtener el carrito con sus items y giftCards relacionados
-        $cart = Cart::where('user_id', $userId)
-            ->with('cartItems.giftCard')
+        $cart = Cart::with('cartItems.giftCard')
+            ->where('user_client_id', $userId)
             ->first();
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return response()->json(['message' => 'Carrito vacío o no encontrado'], 400);
         }
 
-        $order = DB::transaction(function () use ($cart, $userId) {
+        try {
+            DB::beginTransaction();
+
             $total = 0;
-            foreach ($cart->cartItems as $item) {
-                $total += $item->giftCard->price * $item->quantity;
+            $now = now();
+
+            if ($cart->cartItems->isEmpty()) {
+                return response()->json(['error' => 'Carrito vacío'], 400);
             }
 
-            // Crear la orden
+            // Crear la orden primero (sin orderItems aún)
             $order = Order::create([
                 'user_client_id' => $userId,
                 'cart_id'        => $cart->id,
-                'total_price'    => $total,
+                'total_price'    => 0, // lo actualizamos después
                 'status'         => 'paid',
-                'created_at'     => now(),
+                'created_at'     => $now,
             ]);
 
-            // Crear orderItems asociados a la orden usando la relación
-            foreach ($cart->cartItems as $item) {
-                $order->orderItems()->create([
+            $itemsCreados = [];
+
+            $cartItems = $cart->cartItems()->with('giftCard')->get();
+
+            foreach ($cartItems as $item) {
+                $giftCard = $item->giftCard;
+
+                if (!$giftCard) {
+                    dump("❌ GiftCard no encontrada para cart_item_id {$item->id}");
+                    continue;
+                }
+
+                if ($giftCard->stock < $item->quantity) { //chequear stock
+                    DB::rollBack();
+                    return response()->json([
+                        'error' => "No hay suficiente stock para la giftcard '{$giftCard->title}'",
+                        'gift_card_id' => $giftCard->id,
+                        'stock_disponible' => $giftCard->stock,
+                    ], 422);
+                }
+                // Restar stock 
+                $giftCard->stock -= $item->quantity;
+                $giftCard->save();
+
+                $subtotal = $giftCard->price * $item->quantity;
+                $total += $subtotal;
+
+                $orderItem = new OrderItem([
                     'cart_item_id' => $item->id,
-                    'gift_card_id' => $item->gift_card_id,
+                    'gift_card_id' => $giftCard->id,
                     'quantity'     => $item->quantity,
-                    'price'        => $item->giftCard->price,
+                    'price'        => $giftCard->price,
                 ]);
+
+                $order->orderItems()->save($orderItem);
+                dump('✅ OrderItem creado:', $orderItem->toArray());
+                $itemsCreados[] = $orderItem;
             }
 
-            // Vaciar el carrito
+            // Si no se creó ningún item, no tiene sentido continuar
+            if (empty($itemsCreados)) {
+                DB::rollBack();
+                return response()->json(['error' => 'No se pudo guardar ningún OrderItem.'], 422);
+            }
+
+            // Actualizar el total de la orden
+            $order->total_price = $total;
+            $order->save();
+
+            // Eliminar los ítems del carrito
             $cart->cartItems()->delete();
 
-            return $order;
-        });
+            DB::commit();
+        $order->load('orderItems.giftCard');
 
-        // Recargar la orden con sus orderItems y giftCards relacionados
-        $order = $order->fresh('orderItems.giftCard');
+        // Verificamos qué trae orderItems:
+        dump($order->orderItems->toArray());  // ¿Esto muestra los items?
 
-       return response()->json([
+        // Si está vacío, probá también:
+        $itemsCount = $order->orderItems()->count();
+        dump("OrderItems count: $itemsCount");
+
+        return response()->json([
             'message' => 'Orden creada y pagada exitosamente',
-            'order'   => [
+            'order' => [
                 'id' => $order->id,
                 'total_price' => $order->total_price,
                 'items' => $order->orderItems->map(function ($item) {
@@ -77,15 +124,20 @@ class OrderApiController extends Controller
                             'id' => $item->giftCard->id,
                             'title' => $item->giftCard->title,
                             'price' => $item->giftCard->price,
-                            // ...otros campos si querés
-                        ]
+                        ],
                     ];
-                })
-            ]
+                }),
+            ],
         ], 201);
-        }
-
-
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error al crear la orden: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Error al crear la orden',
+                'error'   => $e->getMessage(),
+            ], 500);
+        } 
+    }
 
     public function show(Request $request, Order $order)
     {

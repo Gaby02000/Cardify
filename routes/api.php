@@ -21,6 +21,9 @@ Route::middleware(['api', StartSession::class])->group(function () {
     Route::post('/cart/clear', [CartApiController::class, 'clear']);
     Route::put('/cart-item/{cartItem}', [CartItemApiController::class, 'update']);
     Route::delete('/cart-item/{cartItem}', [CartItemApiController::class, 'destroy']);
+
+    Route::post('/payment', [MercadoPagoHookController::class, 'handle']);
+
     Route::post('/orders', [OrderApiController::class, 'store']);
     Route::get('/orders/{order}', [OrderApiController::class, 'show']);
     });
