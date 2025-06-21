@@ -17,7 +17,7 @@ class Order extends Model
         'created_at',
     ];
 
-    public $timestamps = false;//se maneja a manopla el tiempo
+    public $timestamps = true;//se maneja a manopla el tiempo
 
     public function user()
     {
