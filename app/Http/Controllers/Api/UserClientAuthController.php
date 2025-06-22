@@ -7,7 +7,7 @@ use App\Models\UserClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-
+use App\Models\Cart;
 class UserClientAuthController extends Controller
 {
     public function register(Request $request)
@@ -26,6 +26,10 @@ class UserClientAuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
+        ]);
+
+        Cart::create([
+            'user_client_id' => $user->id,
         ]);
 
         return response()->json([
