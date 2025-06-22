@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Mail\GiftCardCodes;
+use Illuminate\Support\Facades\Mail;
 
 class OrderApiController extends Controller
 {
@@ -81,6 +83,18 @@ class OrderApiController extends Controller
             $cart->cartItems()->delete();
 
             DB::commit();
+            $codes = [];
+
+            foreach ($order->orderItems as $item) {
+                for ($i = 0; $i < $item->quantity; $i++) {
+                    $codes[] = [
+                        'gift_card' => $item->giftCard->title,
+                        'code' => strtoupper(uniqid('GC-')),
+                    ];
+                }
+            }
+
+            Mail::to($user->email)->send(new GiftCardCodes($user, $codes));
 
             return response()->json([
                 'message' => 'Orden creada correctamente',
