@@ -17,6 +17,7 @@ Route::get('/categories', [CategoryApiController::class, 'index']);
 Route::middleware(['api', StartSession::class])->group(function () {
     Route::post('/login', [LoginApiController::class, 'login']);
     Route::post('/logout', [LoginApiController::class, 'logout']);
+    Route::get('/user', [LoginApiController::class, 'user']);    
     Route::post('/register', [UserClientAuthController::class, 'register']);
     Route::get('/cart', [CartApiController::class, 'show']);
     Route::post('/cart/add-item', [CartApiController::class, 'addItem']);

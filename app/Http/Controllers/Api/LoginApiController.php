@@ -40,8 +40,6 @@ class LoginApiController extends Controller
             ],
         ]);
     }
-    
-
 
     public function logout(Request $request)
     {
@@ -52,7 +50,7 @@ class LoginApiController extends Controller
         return response()->json(['message' => 'Logout exitoso']);
     }
 
-    public function me(Request $request)
+    public function user(Request $request)
     {
         $userId = $request->session()->get('user_client_id');
         $user = $userId ? UserClient::find($userId) : null;
@@ -69,4 +67,6 @@ class LoginApiController extends Controller
             ]
         ]);
     }
+    // app/Http/Controllers/Api/LoginApiController.php
+
 }
