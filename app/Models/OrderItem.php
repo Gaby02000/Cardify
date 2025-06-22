@@ -22,11 +22,6 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function cartItem()
-    {
-        return $this->belongsTo(CartItem::class);
-    }
-
     public function giftCard()
     {
         return $this->belongsTo(GiftCard::class, 'gift_card_id');
