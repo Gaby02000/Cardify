@@ -21,6 +21,6 @@ class GiftCardCodes extends Mailable
     public function build()
     {
         return $this->subject('Tus códigos de Gift Card')
-                    ->view('emails.giftcard-codes');
+                    ->view('emails.giftcard-code');
     }
 }
