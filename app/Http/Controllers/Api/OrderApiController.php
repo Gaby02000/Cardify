@@ -27,11 +27,22 @@ class OrderApiController extends Controller
         $user = Auth::guard('user_client')->user();
         $sessionId = $request->session()->getId();
 
+        if (!$user) {
+            return response()->json([
+                'message' => 'Debes iniciar sesión para realizar una compra'
+            ], 401);
+        }
+
+        Log::debug('User desde la api de orden (store): ' . json_encode($user));
+        Log::debug('Session ID desde la api de orden (store): ' . $sessionId);
+
         // Buscar carrito
         $cart = Cart::with('cartItems.giftCard')
             ->when($user, fn($q) => $q->where('user_client_id', $user->id))
             ->when(!$user, fn($q) => $q->where('session_id', $sessionId))
             ->first();
+
+        Log::debug('Cart desde la api de orden (store): ' . json_encode($cart));
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return response()->json(['message' => 'Carrito vacío o no encontrado'], 400);

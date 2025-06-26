@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Cart;
+use Illuminate\Support\Facades\Log;
+
 class UserClientAuthController extends Controller
 {
     public function register(Request $request)
@@ -17,6 +19,8 @@ class UserClientAuthController extends Controller
             'email'    => 'required|string|email|unique:user_clients,email',
             'password' => 'required|string|min:6|confirmed',
         ]);
+
+        Log::debug('Validaror: ' . json_encode($validator));
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
@@ -28,9 +32,13 @@ class UserClientAuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        Cart::create([
+        Log::debug('User client creado: ' . json_encode($user));
+
+        $cart = Cart::create([
             'user_client_id' => $user->id,
         ]);
+
+        Log::debug('Carrito creado: ' . json_encode($cart));
 
         return response()->json([
             'message' => 'Usuario registrado correctamente',

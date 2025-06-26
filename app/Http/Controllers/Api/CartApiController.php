@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use App\Models\GiftCard;
+use Illuminate\Support\Facades\Log;
 
 class CartApiController extends Controller
 {
@@ -19,10 +20,14 @@ class CartApiController extends Controller
         $userId = $user?->id;
         $sessionId = $request->session()->getId();
 
+        Log::debug('User desde la api de carrito (show): ' . json_encode($user));
+        Log::debug('Session ID desde la api de carrito (show): ' . $sessionId);
+
         $cart = null;
 
         if ($userId) {
             $cart = Cart::where('user_client_id', $userId)->first();
+            Log::debug('Carrito del usuario que ya estaba logueado: ' . json_encode($cart));
 
             if (!$cart) {
                 // Si el usuario recién se logueó y tenía un carrito de sesión
@@ -32,10 +37,12 @@ class CartApiController extends Controller
                     $guestCart->session_id = null;
                     $guestCart->save();
                     $cart = $guestCart;
+                    Log::debug('Carrito del usuario que se acaba de loguear: ' . json_encode($cart));
                 }
             }
         } else {
             $cart = Cart::where('session_id', $sessionId)->first();
+            Log::debug('Carrito del usuario no logueado: ' . json_encode($cart));
         }
 
         if ($cart) {
@@ -62,6 +69,9 @@ class CartApiController extends Controller
         $userId = $user?->id;
         $sessionId = $request->session()->getId();
         
+        Log::debug('User desde la api de carrito (addItem): ' . json_encode($user));
+        Log::debug('Session ID desde la api de carrito (addItem): ' . $sessionId);
+
         $quantityToAdd = $request->quantity ?? 1;
 
         $giftCard = GiftCard::find($request->gift_card_id);
@@ -75,8 +85,11 @@ class CartApiController extends Controller
 
         if ($userId) { // Buscar carrito existente del usuario o crear
             $cart = Cart::firstOrCreate(['user_client_id' => $userId]);
+            Log::debug('Carrito del usuario que ya estaba logueado: ' . json_encode($cart));
+
             if ($sessionId) {
                 $guestCart = Cart::where('session_id', $sessionId)->first();
+                Log::debug('Carrito del usuario que se acaba de loguear: ' . json_encode($cart));
                 if ($guestCart) {
                     foreach ($guestCart->cartItems as $guestItem) {
                         $item = CartItem::firstOrNew([
@@ -92,6 +105,7 @@ class CartApiController extends Controller
             }
         } else {
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
+            Log::debug('Carrito del usuario no logueado: ' . json_encode($cart));
         }
         
         $item = CartItem::firstOrNew([

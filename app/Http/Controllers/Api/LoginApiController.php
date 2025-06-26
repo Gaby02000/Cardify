@@ -6,39 +6,54 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\UserClient;
+use App\Models\Cart;
+use App\Models\CartItem;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LoginApiController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $credentials = $request->only('email', 'password');
+        Log::debug('Credenciales del usuario: ' . json_encode($credentials));
+        
+        if (Auth::guard('user_client')->attempt($credentials)) {
+            $user = Auth::guard('user_client')->user();
 
-        $user = UserClient::where('email', $credentials['email'])->first();
+            // Si vino con session_id del carrito anónimo
+            $sessionId = $request->input('session_id');
+            Log::debug('Session ID del usuario: ' . $sessionId);
+            if ($sessionId) {
+                $guestCart = Cart::where('session_id', $sessionId)->first();
+                if ($guestCart) {
+                    // Si el usuario ya tenía un carrito propio, mergear ítems
+                    $userCart = Cart::firstOrCreate(['user_client_id' => $user->id]);
+                    foreach ($guestCart->cartItems as $item) {
+                        $existing = $userCart->cartItems()
+                            ->where('gift_card_id', $item->gift_card_id)
+                            ->first();
+                        if ($existing) {
+                            $existing->quantity += $item->quantity;
+                            $existing->save();
+                        } else {
+                            $item->cart_id = $userCart->id;
+                            $item->save();
+                        }
+                    }
+                    $guestCart->delete();
+                }
+            }
 
-        if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado'], 401);
+            return response()->json([
+                'message' => 'Login exitoso',
+                'user' => $user,
+            ]);
         }
 
-        if (!Hash::check($credentials['password'], $user->password)) {
-            return response()->json(['message' => 'Credenciales inválidas'], 401);
-        }
-
-        Auth::guard('user_client')->login($user);
-        $request->session()->regenerate();
-        return response()->json([
-            'message' => 'Login exitoso',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,200
-            ],
-        ]);
+        return response()->json(['error' => 'Credenciales inválidas'], 401);
     }
 
     public function logout(Request $request)
