@@ -181,7 +181,7 @@ class OrderApiController extends Controller
             return response()->json([
                 'message' => 'Orden creada correctamente',
                 'order' => $order->load('orderItems.giftCard'),
-                // 'preference_id' => $preference->id,
+                'preference_id' => $preference->id,
                 'preference' => $preference,
             ], 201);
         } catch (MPApiException $e) {
