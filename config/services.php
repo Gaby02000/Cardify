@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'mercadopago' => [
+        'access_token' => env('MERCADO_PAGO_ACCESS_TOKEN'),
+    ],
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
 ];

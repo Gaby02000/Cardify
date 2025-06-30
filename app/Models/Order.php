@@ -10,18 +10,18 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'user_client_id',
         'cart_id',
         'total_price',
         'status',
         'created_at',
     ];
 
-    public $timestamps = false;//se maneja a manopla el tiempo
+    public $timestamps = true;//se maneja a manopla el tiempo
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(UserClient::class, 'user_client_id');
     }
 
     public function cart()
