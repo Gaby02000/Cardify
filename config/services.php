@@ -40,5 +40,6 @@ return [
     ],
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'backend_url' => env('BACKEND_URL', 'http://localhost:8000'),
 
 ];

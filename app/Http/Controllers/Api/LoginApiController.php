@@ -47,9 +47,13 @@ class LoginApiController extends Controller
                 }
             }
 
+            // Token de acceso para la SPA (se manda en el header Authorization: Bearer ...)
+            $token = $user->createToken('spa')->plainTextToken;
+
             return response()->json([
                 'message' => 'Login exitoso',
                 'user' => $user,
+                'token' => $token,
             ]);
         }
 
@@ -58,17 +62,15 @@ class LoginApiController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('user_client')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Revoca únicamente el token con el que se hizo esta petición.
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logout exitoso']);
     }
 
     public function user(Request $request)
     {
-        $userId = $request->session()->get('user_client_id');
-        $user = $userId ? UserClient::find($userId) : null;
+        $user = $request->user();
 
         if (!$user) {
             return response()->json(['user' => null], 401);

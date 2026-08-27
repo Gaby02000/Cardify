@@ -16,9 +16,9 @@ class CartApiController extends Controller
 
  public function show(Request $request)
     {
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user('sanctum');
         $userId = $user?->id;
-        $sessionId = $request->session()->getId();
+        $sessionId = $request->input('session_id');
 
         Log::debug('User desde la api de carrito (show): ' . json_encode($user));
         Log::debug('Session ID desde la api de carrito (show): ' . $sessionId);
@@ -29,8 +29,8 @@ class CartApiController extends Controller
             $cart = Cart::where('user_client_id', $userId)->first();
             Log::debug('Carrito del usuario que ya estaba logueado: ' . json_encode($cart));
 
-            if (!$cart) {
-                // Si el usuario recién se logueó y tenía un carrito de sesión
+            if (!$cart && $sessionId) {
+                // Si el usuario recién se logueó y tenía un carrito de invitado
                 $guestCart = Cart::where('session_id', $sessionId)->first();
                 if ($guestCart) {
                     $guestCart->user_client_id = $userId;
@@ -40,7 +40,7 @@ class CartApiController extends Controller
                     Log::debug('Carrito del usuario que se acaba de loguear: ' . json_encode($cart));
                 }
             }
-        } else {
+        } elseif ($sessionId) {
             $cart = Cart::where('session_id', $sessionId)->first();
             Log::debug('Carrito del usuario no logueado: ' . json_encode($cart));
         }
@@ -65,12 +65,16 @@ class CartApiController extends Controller
             'quantity' => 'integer|min:1',
         ]);
 
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user('sanctum');
         $userId = $user?->id;
-        $sessionId = $request->session()->getId();
-        
+        $sessionId = $request->input('session_id');
+
         Log::debug('User desde la api de carrito (addItem): ' . json_encode($user));
         Log::debug('Session ID desde la api de carrito (addItem): ' . $sessionId);
+
+        if (!$userId && !$sessionId) {
+            return response()->json(['error' => 'session_id requerido para el carrito de invitado'], 422);
+        }
 
         $quantityToAdd = $request->quantity ?? 1;
 
@@ -125,11 +129,11 @@ class CartApiController extends Controller
 
    public function clear(Request $request)
     {
-        $userId = $request->user()?->id;
+        $userId = $request->user('sanctum')?->id;
         $sessionId = $request->input('session_id');
 
         if ($userId) {
-            $cart = Cart::where('user_id', $userId)->first();
+            $cart = Cart::where('user_client_id', $userId)->first();
         } elseif ($sessionId) {
             $cart = Cart::where('session_id', $sessionId)->first();
         } else {
@@ -152,7 +156,7 @@ class CartApiController extends Controller
             'session_id' => 'nullable|string',
         ]);
 
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user('sanctum');
         $userId = $user?->id;
         $sessionId = $request->input('session_id');
 

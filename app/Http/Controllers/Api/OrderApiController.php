@@ -8,80 +8,61 @@ use App\Models\OrderItem;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use App\Mail\GiftCardCodes;
 use Illuminate\Support\Facades\Mail;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\MercadoPagoConfig;
-use MercadoPago\Resources\Preference;
-use MercadoPago\Resources\Preference\Item;
 use MercadoPago\Exceptions\MPApiException;
 
 class OrderApiController extends Controller
 {
     public function store(Request $request)
     {
-        // Obtener usuario autenticado o session_id
-        $user = Auth::guard('user_client')->user();
-        $sessionId = $request->session()->getId();
+        // Ruta protegida con auth:sanctum -> siempre hay usuario.
+        $user = $request->user();
 
         if (!$user) {
-            return response()->json([
-                'message' => 'Debes iniciar sesión para realizar una compra'
-            ], 401);
+            return response()->json(['message' => 'Debes iniciar sesión para realizar una compra'], 401);
         }
 
-        Log::debug('User desde la api de orden (store): ' . json_encode($user));
-        Log::debug('Session ID desde la api de orden (store): ' . $sessionId);
-
-        // Buscar carrito
         $cart = Cart::with('cartItems.giftCard')
-            ->when($user, fn($q) => $q->where('user_client_id', $user->id))
-            ->when(!$user, fn($q) => $q->where('session_id', $sessionId))
+            ->where('user_client_id', $user->id)
             ->first();
-
-        Log::debug('Cart desde la api de orden (store): ' . json_encode($cart));
 
         if (!$cart || $cart->cartItems->isEmpty()) {
             return response()->json(['message' => 'Carrito vacío o no encontrado'], 400);
         }
 
-        // Calcular total
-        $total = 0;
+        // Validar stock de TODOS los ítems antes de tocar la base.
         foreach ($cart->cartItems as $item) {
-            $total += $item->quantity * $item->giftCard->price;
+            if (!$item->giftCard) {
+                return response()->json(['message' => 'Una giftcard del carrito ya no está disponible'], 422);
+            }
+            if ($item->giftCard->stock < $item->quantity) {
+                return response()->json([
+                    'error' => "No hay suficiente stock para '{$item->giftCard->title}'",
+                    'gift_card_id' => $item->giftCard->id,
+                    'stock_disponible' => $item->giftCard->stock,
+                ], 422);
+            }
         }
+
+        $total = $cart->cartItems->sum(fn ($i) => $i->quantity * $i->giftCard->price);
 
         try {
             DB::beginTransaction();
 
-            // Crear orden
             $order = Order::create([
-                'user_client_id' => $user?->id,
+                'user_client_id' => $user->id,
                 'cart_id' => $cart->id,
                 'total_price' => $total,
                 'status' => 'pendiente',
-                'created_at' => Carbon::now(),
             ]);
 
-            // Crear items de la orden
             foreach ($cart->cartItems as $item) {
-                $giftCard = $item->giftCard;
+                $item->giftCard->decrement('stock', $item->quantity);
 
-                if ($giftCard->stock < $item->quantity) { //chequear stock
-                    return response()->json([
-                        'error' => "No hay suficiente stock para la giftcard '{$giftCard->title}'",
-                        'gift_card_id' => $giftCard->id,
-                        'stock_disponible' => $giftCard->stock,
-                    ], 422);
-                }
-                
-                // Restar stock 
-                $giftCard->stock -= $item->quantity;
-                $giftCard->save();
-                
                 OrderItem::create([
                     'order_id' => $order->id,
                     'cart_item_id' => $item->id,
@@ -91,114 +72,97 @@ class OrderApiController extends Controller
                 ]);
             }
 
-            // Actualizar el total de la orden
-            $order->total_price = $total;
-            $order->save();
+            $order->load('orderItems.giftCard');
 
-            // Eliminar los ítems del carrito
-            $cart->cartItems()->delete();
-
-            // Creo que aca irian las preferencias de mercado pago, pero no estoy seguro
-
-            // Configurar acceso
-            MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
-            $frontendUrl = env('FRONTEND_URL');
-            $backendUrl = env('BACKEND_URL');
-            // Log::debug('url del front: ' . $frontendUrl);
-
-            // Crear preferencia
-            $client = new PreferenceClient();
-
-            // Crear los ítems
-            $items = [];
-
-            foreach ($order->orderItems as $orderItem) {
-                $items[] = [
-                    'title' => $orderItem->giftCard->title,
-                    'quantity' => $orderItem->quantity,
-                    'unit_price' => (float) $orderItem->price,
-                ];
-            }
-
-            // $items = [
-            //     [
-            //         'title' => "Item Test",
-            //         'quantity' => 2,
-            //         'unit_price' => 300,
-            //     ]
-            // ];
-
-            $payer = [
-                "name" => $user->name,
-                "email" => $user->email,
-            ];
-
-            // Log::debug('url del front para success: ' . $frontendUrl . '/order-confirmed');
-            // Log::debug('url del front para failed: ' . $frontendUrl . '/order-failed');
-            // Log::debug('url del front para pending: ' . $frontendUrl . '/order-confirmed');
-
-            $back_urls = [
-                "success" => $frontendUrl . "/order-confirmed",
-                "failure" => $frontendUrl . "/order-failed",
-                "pending" => $frontendUrl . "/order-confirmed",
-            ];
-
-            // $back_urls = [
-            //     "success" => "https://cardify-frontend-git-dev-gaby02000s-projects.vercel.app/order-confirmed",
-            //     "failure" => "https://cardify-frontend-git-dev-gaby02000s-projects.vercel.app/order-failed",
-            //     "pending" => "https://cardify-frontend-git-dev-gaby02000s-projects.vercel.app/order-confirmed",
-            // ];
-
-            $request = [
-                "items" => $items,
-                "payer" => $payer,
-                "back_urls" => $back_urls,
-                "notification_url" => $backendUrl . '/apis/payment',
-                "auto_return" => "approved",
-                "external_reference" => 123456,
-                "statement_descriptor" => 'Cardify'
-            ];
-
-            Log::debug('Request: ' . json_encode($request));
-
-            // Crear preferencia
-            $preference = $client->create($request);
+            $preference = $this->createMercadoPagoPreference($order, $user);
 
             DB::commit();
-            $codes = [];
-
-            foreach ($order->orderItems as $item) {
-                for ($i = 0; $i < $item->quantity; $i++) {
-                    $codes[] = [
-                        'gift_card' => $item->giftCard->title,
-                        'code' => strtoupper(uniqid('GC-')),
-                    ];
-                }
-            }
-
-            Mail::to($user->email)->send(new GiftCardCodes($user, $codes));
-
-            return response()->json([
-                'message' => 'Orden creada correctamente',
-                'order' => $order->load('orderItems.giftCard'),
-                'preference_id' => $preference->id,
-                'preference' => $preference,
-            ], 201);
         } catch (MPApiException $e) {
             DB::rollBack();
-            Log::error('Mercado Pago API ERROR (message): ' . $e->getMessage());
-            Log::error('Mercado Pago API ERROR (response): ' . json_encode($e->getApiResponse()->getContent()));
-            return response()->json(['message' => 'Error de Mercado Pago'], 500);
-        } catch (\Exception $e) {
+            Log::error('Mercado Pago API ERROR: ' . $e->getMessage(), [
+                'response' => optional($e->getApiResponse())->getContent(),
+            ]);
+            return response()->json(['message' => 'No se pudo generar el pago con Mercado Pago'], 502);
+        } catch (\Throwable $e) {
             DB::rollBack();
-            Log::error('Error general: ' . $e->getMessage());
-            return response()->json(['message' => 'Error interno'], 500);
+            Log::error('Error creando la orden: ' . $e->getMessage());
+            return response()->json(['message' => 'Error interno al crear la orden'], 500);
         }
+
+        // --- Entrega de códigos (best-effort, fuera de la transacción) ---
+        $codes = [];
+        foreach ($order->orderItems as $orderItem) {
+            for ($i = 0; $i < $orderItem->quantity; $i++) {
+                $codes[] = [
+                    'gift_card' => $orderItem->giftCard->title,
+                    'code' => strtoupper(uniqid('GC-')),
+                ];
+            }
+        }
+
+        try {
+            Mail::to($user->email)->send(new GiftCardCodes($user, $codes));
+        } catch (\Throwable $e) {
+            Log::warning('No se pudo enviar el email de códigos: ' . $e->getMessage());
+        }
+
+        // Vaciar el carrito ya convertido en orden.
+        $cart->cartItems()->delete();
+
+        return response()->json([
+            'message' => 'Orden creada correctamente',
+            'order' => $order,
+            'preference_id' => $preference->id,
+            'init_point' => $preference->init_point,
+            'sandbox_init_point' => $preference->sandbox_init_point,
+        ], 201);
+    }
+
+    /**
+     * Crea la preferencia de Checkout Pro para la orden.
+     */
+    private function createMercadoPagoPreference(Order $order, $user)
+    {
+        MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
+
+        $frontendUrl = rtrim((string) config('services.frontend_url'), '/');
+        $backendUrl  = rtrim((string) config('services.backend_url'), '/');
+
+        $data = [
+            'items' => $order->orderItems->map(fn ($oi) => [
+                'id' => (string) $oi->gift_card_id,
+                'title' => $oi->giftCard->title,
+                'quantity' => (int) $oi->quantity,
+                'unit_price' => (float) $oi->price,
+                'currency_id' => 'ARS',
+            ])->all(),
+            'payer' => [
+                'name' => $user->name,
+                'email' => $user->email,
+            ],
+            'back_urls' => [
+                'success' => $frontendUrl . '/order-confirmed',
+                'failure' => $frontendUrl . '/order-failed',
+                'pending' => $frontendUrl . '/order-confirmed',
+            ],
+            'external_reference' => (string) $order->id,
+            'statement_descriptor' => 'Cardify',
+        ];
+
+        // Mercado Pago rechaza auto_return / notification_url con dominios locales.
+        if (str_starts_with($frontendUrl, 'https://')) {
+            $data['auto_return'] = 'approved';
+        }
+        if (str_starts_with($backendUrl, 'https://')) {
+            $data['notification_url'] = $backendUrl . '/apis/payment';
+        }
+
+        return (new PreferenceClient())->create($data);
     }
 
     public function show(Request $request, Order $order)
     {
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user();
 
         if ($order->user_client_id !== $user?->id) {
             return response()->json(['message' => 'No autorizado'], 403);
