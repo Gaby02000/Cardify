@@ -6,20 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
+use App\Services\OrderPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Mail\GiftCardCodes;
-use Illuminate\Support\Facades\Mail;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Exceptions\MPApiException;
 
 class OrderApiController extends Controller
 {
+    /**
+     * Crea la orden en estado "pendiente" y devuelve el link de pago.
+     * NO se descuenta stock ni se entregan códigos acá: eso ocurre recién
+     * cuando Mercado Pago confirma el pago (ver confirm() y el webhook).
+     */
     public function store(Request $request)
     {
-        // Ruta protegida con auth:sanctum -> siempre hay usuario.
         $user = $request->user();
 
         if (!$user) {
@@ -34,7 +37,7 @@ class OrderApiController extends Controller
             return response()->json(['message' => 'Carrito vacío o no encontrado'], 400);
         }
 
-        // Validar stock de TODOS los ítems antes de tocar la base.
+        // Solo validamos disponibilidad; el descuento real es al confirmar el pago.
         foreach ($cart->cartItems as $item) {
             if (!$item->giftCard) {
                 return response()->json(['message' => 'Una giftcard del carrito ya no está disponible'], 422);
@@ -61,8 +64,6 @@ class OrderApiController extends Controller
             ]);
 
             foreach ($cart->cartItems as $item) {
-                $item->giftCard->decrement('stock', $item->quantity);
-
                 OrderItem::create([
                     'order_id' => $order->id,
                     'cart_item_id' => $item->id,
@@ -89,33 +90,56 @@ class OrderApiController extends Controller
             return response()->json(['message' => 'Error interno al crear la orden'], 500);
         }
 
-        // --- Entrega de códigos (best-effort, fuera de la transacción) ---
-        $codes = [];
-        foreach ($order->orderItems as $orderItem) {
-            for ($i = 0; $i < $orderItem->quantity; $i++) {
-                $codes[] = [
-                    'gift_card' => $orderItem->giftCard->title,
-                    'code' => strtoupper(uniqid('GC-')),
-                ];
-            }
-        }
-
-        try {
-            Mail::to($user->email)->send(new GiftCardCodes($user, $codes));
-        } catch (\Throwable $e) {
-            Log::warning('No se pudo enviar el email de códigos: ' . $e->getMessage());
-        }
-
-        // Vaciar el carrito ya convertido en orden.
-        $cart->cartItems()->delete();
-
         return response()->json([
-            'message' => 'Orden creada correctamente',
+            'message' => 'Orden creada',
             'order' => $order,
             'preference_id' => $preference->id,
             'init_point' => $preference->init_point,
             'sandbox_init_point' => $preference->sandbox_init_point,
         ], 201);
+    }
+
+    /**
+     * Lo llama el frontend al volver de Mercado Pago (back_urls). Verifica el
+     * pago contra la API de MP y, si está aprobado, entrega los códigos.
+     * Idempotente: si el webhook ya lo procesó, solo devuelve el resultado.
+     */
+    public function confirm(Request $request, Order $order, OrderPaymentService $payments)
+    {
+        if ($order->user_client_id !== $request->user()?->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $paymentId = $request->input('payment_id')
+            ?? $request->input('collection_id')
+            ?? $request->query('payment_id')
+            ?? $request->query('collection_id');
+
+        if ($paymentId) {
+            $payments->syncFromPayment($paymentId);
+            $order->refresh();
+        }
+
+        $order->load('orderItems.giftCard');
+
+        return response()->json([
+            'status' => $order->status, // pendiente | pagado | rechazado | reembolsado
+            'codes'  => $order->status === 'pagado' ? ($order->codes ?? []) : [],
+            'order'  => $order,
+        ]);
+    }
+
+    public function show(Request $request, Order $order)
+    {
+        $user = $request->user();
+
+        if ($order->user_client_id !== $user?->id) {
+            return response()->json(['message' => 'No autorizado'], 403);
+        }
+
+        $order->load('orderItems.giftCard');
+
+        return response()->json($order);
     }
 
     /**
@@ -158,18 +182,5 @@ class OrderApiController extends Controller
         }
 
         return (new PreferenceClient())->create($data);
-    }
-
-    public function show(Request $request, Order $order)
-    {
-        $user = $request->user();
-
-        if ($order->user_client_id !== $user?->id) {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
-
-        $order->load('orderItems.giftCard');
-
-        return response()->json($order);
     }
 }
