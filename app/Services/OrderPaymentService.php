@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Mail\GiftCardCodes;
 use App\Models\CartItem;
 use App\Models\Order;
+use App\Models\PushSubscription;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -55,7 +57,14 @@ class OrderPaymentService
         $target = self::STATUS_MAP[$mpStatus] ?? $order->status;
 
         if ($target === 'pagado') {
+            $wasPaid = $order->status === 'pagado';
             $this->fulfill($order);
+
+            // Solo en la transición real pendiente -> pagado, y ya con la
+            // transacción de fulfill() confirmada.
+            if (! $wasPaid && $order->fresh()?->status === 'pagado') {
+                $this->notifyPurchase($order);
+            }
         } elseif ($target === 'rechazado') {
             $this->reject($order);
         }
@@ -126,5 +135,41 @@ class OrderPaymentService
         }
         $order->update(['status' => 'rechazado']);
         Log::info("Orden {$order->id} -> rechazado");
+    }
+
+    /**
+     * Notificación push "compra confirmada" a los dispositivos del comprador.
+     * Best-effort: cualquier error se loguea y no corta el flujo del pago.
+     */
+    private function notifyPurchase(Order $order): void
+    {
+        if (! $order->user_client_id) {
+            return;
+        }
+
+        // Dedupe: el webhook de MP y el retorno del frontend pueden confirmar
+        // la misma orden casi a la vez. Cache::add es atómico.
+        if (! Cache::add('push-order-notified:' . $order->id, true, now()->addDay())) {
+            return;
+        }
+
+        $subscriptions = PushSubscription::where('user_client_id', $order->user_client_id)->get();
+        if ($subscriptions->isEmpty()) {
+            return;
+        }
+
+        try {
+            app(WebPushService::class)->send([
+                'title' => '¡Compra confirmada! 🎉',
+                'body' => sprintf(
+                    'Tu pago de $%s se aprobó. Entrá para ver tus códigos.',
+                    number_format((float) $order->total_price, 2, ',', '.')
+                ),
+                'url' => '/order-confirmed?external_reference=' . $order->id,
+                'tag' => 'cardify-order-' . $order->id,
+            ], $subscriptions);
+        } catch (\Throwable $e) {
+            Log::warning('Push de compra no enviado: ' . $e->getMessage());
+        }
     }
 }
