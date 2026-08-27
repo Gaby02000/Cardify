@@ -56,12 +56,20 @@ class CartItemApiController extends Controller
 
         $this->authorizeCartItem($request, $cartItem);
 
+        $stock = $cartItem->giftCard?->stock ?? 0;
+        if ($request->quantity > $stock) {
+            return response()->json([
+                'error' => 'No hay suficiente stock disponible.',
+                'available_stock' => $stock,
+            ], 422);
+        }
+
         $cartItem->quantity = $request->quantity;
         $cartItem->save();
 
         return response()->json([
             'message' => 'Cantidad actualizada',
-            'data' => $cartItem,
+            'data' => $cartItem->load('giftCard'),
         ], 200);
     }
 
