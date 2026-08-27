@@ -173,14 +173,22 @@ class OrderApiController extends Controller
             'statement_descriptor' => 'Cardify',
         ];
 
-        // Mercado Pago rechaza auto_return / notification_url con dominios locales.
-        if (str_starts_with($frontendUrl, 'https://')) {
-            $data['auto_return'] = 'approved';
-        }
+        // Con auto_return, al aprobarse el pago MP redirige solo a back_urls.success.
+        // MP lo rechaza si esa URL no es pública (localhost) -> reintentamos sin él.
+        $data['auto_return'] = 'approved';
+
         if (str_starts_with($backendUrl, 'https://')) {
             $data['notification_url'] = $backendUrl . '/apis/payment';
         }
 
-        return (new PreferenceClient())->create($data);
+        $client = new PreferenceClient();
+
+        try {
+            return $client->create($data);
+        } catch (MPApiException $e) {
+            Log::warning('MP: preferencia sin auto_return (' . $e->getMessage() . ')');
+            unset($data['auto_return']);
+            return $client->create($data);
+        }
     }
 }
