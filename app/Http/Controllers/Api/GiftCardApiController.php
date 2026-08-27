@@ -30,15 +30,17 @@ class GiftCardApiController extends Controller
             });
         }
 
-        if ($request->has('sort')) {
-            $sortField = $request->input('sort');
-            $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
-            if (in_array($sortField, ['price', 'stock', 'amount'])) {
-                $query->orderBy($sortField, $direction);
-            }
+        $sortField = $request->input('sort');
+        $direction = $request->input('direction') === 'desc' ? 'desc' : 'asc';
+        if (in_array($sortField, ['price', 'stock', 'amount', 'title', 'created_at'], true)) {
+            $query->orderBy($sortField, $direction);
+        } else {
+            $query->orderBy('id', 'desc'); // novedades primero por defecto
         }
 
-        return response()->json($query->paginate(52));
+        $perPage = max(1, min(50, (int) $request->input('per_page', 10)));
+
+        return response()->json($query->paginate($perPage)->withQueryString());
     }
 
     public function show($id)
