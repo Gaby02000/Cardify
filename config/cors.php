@@ -9,5 +9,7 @@ return [
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true,
+    // El frontend SPA autentica con token Bearer (no cookies), así que no se
+    // necesitan credenciales cross-origin y 'allowed_origins' => ['*'] es válido.
+    'supports_credentials' => false,
 ];

@@ -18,12 +18,12 @@ class CartItemApiController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user('sanctum');
 
         if ($user) {
             $cart = Cart::firstOrCreate(['user_client_id' => $user->id]);
         } else {
-            $sessionId = $request->session()->getId();
+            $sessionId = $request->input('session_id');
             $cart = Cart::firstOrCreate(['session_id' => $sessionId]);
         }
 
@@ -54,31 +54,20 @@ class CartItemApiController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
+        $this->authorizeCartItem($request, $cartItem);
+
         $cartItem->quantity = $request->quantity;
         $cartItem->save();
 
         return response()->json([
             'message' => 'Cantidad actualizada',
-            'data' => $cartItem, 200
-        ]);
+            'data' => $cartItem,
+        ], 200);
     }
 
    public function destroy(Request $request, CartItem $cartItem)
     {
-        $user = Auth::guard('user_client')->user();
-        $sessionId = $request->session()->getId();
-
-        $cart = $cartItem->cart;
-
-        if ($user) {
-            if ($cart->user_client_id !== $user->id) {
-                return response()->json(['error' => 'No autorizado'], 403);
-            }
-        } else {
-            if ($cart->session_id !== $sessionId) {
-                return response()->json(['error' => 'No autorizado'], 403);
-            }
-        }
+        $this->authorizeCartItem($request, $cartItem);
 
         $cartItem->delete();
 
@@ -87,14 +76,30 @@ class CartItemApiController extends Controller
         ]);
     }
 
+    /**
+     * El item pertenece al usuario autenticado (token) o al carrito de invitado
+     * identificado por el `session_id` que envía el frontend.
+     */
+    private function authorizeCartItem(Request $request, CartItem $cartItem): void
+    {
+        $user = $request->user('sanctum');
+        $cart = $cartItem->cart;
+
+        $owns = $user
+            ? $cart->user_client_id === $user->id
+            : $cart->session_id !== null && $cart->session_id === $request->input('session_id');
+
+        abort_unless($owns, 403, 'No autorizado');
+    }
+
     public function index(Request $request)
     {
-        $user = Auth::guard('user_client')->user();
+        $user = $request->user('sanctum');
 
         if ($user) {
             $cart = Cart::with('cartItems.giftCard')->where('user_client_id', $user->id)->first();
         } else {
-            $sessionId = $request->session()->getId();
+            $sessionId = $request->input('session_id');
             $cart = Cart::with('cartItems.giftCard')->where('session_id', $sessionId)->first();
         }
 
