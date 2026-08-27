@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\OrderApiController;
 use App\Http\Controllers\Api\LoginApiController;
 use App\Http\Controllers\Api\UserClientAuthController;
 use App\Http\Controllers\Api\MercadoPagoHookController;
+use App\Http\Controllers\Api\PushSubscriptionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,11 @@ Route::post('/register', [UserClientAuthController::class, 'register']);
 
 // Webhook de Mercado Pago (lo invoca MP, sin usuario)
 Route::post('/payment', [MercadoPagoHookController::class, 'handle']);
+
+// Notificaciones Web Push (alta/baja abiertas; si viene el Bearer se asocia al usuario)
+Route::get('/push/public-key', [PushSubscriptionController::class, 'publicKey']);
+Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe']);
+Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe']);
 
 /*
 |--------------------------------------------------------------------------

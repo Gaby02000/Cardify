@@ -131,6 +131,7 @@
                 </div>
 
                 <a href="{{ route('orders.index') }}" class="hover-link transition">Órdenes Emitidas</a>
+                <a href="{{ route('promotions.index') }}" class="hover-link transition">Promociones</a>
             </nav>
         </aside>
 
