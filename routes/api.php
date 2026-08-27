@@ -49,4 +49,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/orders', [OrderApiController::class, 'store']);
     Route::get('/orders/{order}', [OrderApiController::class, 'show']);
+    Route::post('/orders/{order}/confirm', [OrderApiController::class, 'confirm']);
 });

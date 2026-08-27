@@ -14,7 +14,12 @@ class Order extends Model
         'cart_id',
         'total_price',
         'status',
+        'codes',
         'created_at',
+    ];
+
+    protected $casts = [
+        'codes' => 'array',
     ];
 
     public $timestamps = true;//se maneja a manopla el tiempo
