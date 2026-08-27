@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PromotionController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Pdf\OrderPdfController;
 use Mockery\Generator\StringManipulation\Pass\Pass;
@@ -60,6 +61,12 @@ Route::get('register', [RegisterController::class, 'showRegistrationForm'])->nam
 Route::post('register', [RegisterController::class, 'register']);
 
 Route::resource('dashboard', DashboardController::class)->only(['index'])->middleware('auth');
+
+// Promociones: envío de notificaciones push a los suscriptores
+Route::middleware('auth')->group(function () {
+    Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
+    Route::post('/promotions', [PromotionController::class, 'send'])->name('promotions.send');
+});
 
 Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])
      ->name('orders.pdf');
