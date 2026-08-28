@@ -7,13 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="https://img.icons8.com/ios-filled/50/1f2937/bank-card-back-side.png" />
     <style>
-        body { background-color: #f4f5f7; color: #374151; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
     </style>
+    @include('partials.theme')
 </head>
 <body class="flex flex-col min-h-screen">
 
-    <nav class="px-6 py-3 bg-white border-b border-gray-200">
+    <nav class="px-6 py-3 bg-white border-b border-gray-200 flex items-center justify-between">
         <a href="{{ route('home') }}" class="text-lg font-semibold text-gray-900 hover:text-gray-700 transition">Cardify</a>
+        @include('partials.theme-toggle')
     </nav>
 
     <main class="flex-1 flex flex-col items-center justify-center text-center p-8">

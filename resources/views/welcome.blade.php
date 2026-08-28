@@ -8,22 +8,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="https://img.icons8.com/ios-filled/50/1f2937/bank-card-back-side.png" />
     <style>
-        :root { color-scheme: light; }
         [x-cloak] { display: none !important; }
-
-        body {
-            background-color: #f4f5f7;
-            color: #374151;
-            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* Clases heredadas por las vistas: se mantienen los nombres, cambia el color. */
-        .text-a4cadc { color: #1f2937; }
-        .hover-link { color: #4b5563; }
-        .hover-link:hover { color: #111827; }
-        .main-bg { background-color: #f4f5f7; }
-        .sidebar-bg { background-color: #ffffff; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
+    @include('partials.theme')
 </head>
 <body class="min-h-screen flex flex-col" x-data="{ sidebarOpen: true }">
 
@@ -39,7 +27,8 @@
             <span class="hidden sm:inline text-xs text-gray-400">Panel administrativo</span>
         </div>
 
-        <div class="flex items-center space-x-4 relative" x-data="{ open: false }">
+        <div class="flex items-center space-x-3 relative" x-data="{ open: false }">
+            @include('partials.theme-toggle')
             @auth
                 <button
                     @click="open = !open"
@@ -85,7 +74,7 @@
     <div class="flex flex-1 overflow-hidden">
 
         <!-- Sidebar -->
-        <aside x-show="sidebarOpen" x-transition class="bg-white border-r border-gray-200 w-64 p-4 flex-col text-sm text-gray-600 hidden md:flex">
+        <aside x-show="sidebarOpen" x-transition class="sidebar-bg border-r border-gray-200 w-64 p-4 flex-col text-sm text-gray-600 hidden md:flex">
             <nav class="flex flex-col space-y-1">
                 <a href="{{ route('dashboard.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Dashboard</a>
 

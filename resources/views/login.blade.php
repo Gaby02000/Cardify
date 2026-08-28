@@ -7,10 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="https://img.icons8.com/ios-filled/50/1f2937/bank-card-back-side.png" />
     <style>
-        body { background-color: #f4f5f7; color: #374151; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
     </style>
+    @include('partials.theme')
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="fixed top-4 right-4">
+        @include('partials.theme-toggle')
+    </div>
 
     <div class="bg-white border border-gray-200 rounded-lg p-8 w-full max-w-md">
         <div class="flex items-center justify-center gap-2 mb-1">

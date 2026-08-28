@@ -80,17 +80,20 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    Chart.defaults.color = '#6b7280';
+    const __dark = document.documentElement.classList.contains('dark');
+    const TXT = __dark ? '#a4cadc' : '#374151';
+    const GRID = __dark ? '#274550' : '#e5e7eb';
+    const SERIES = __dark ? '#2a7d89' : '#334155';
+    Chart.defaults.color = __dark ? '#7c9fad' : '#6b7280';
     Chart.defaults.font.family = "ui-sans-serif, system-ui, sans-serif";
-    const LEGEND = { color: '#374151', font: { size: 13 } };
-    const GRID = '#e5e7eb';
+    const LEGEND = { color: TXT, font: { size: 13 } };
 
     const ctxOrders = document.getElementById('ordersChart').getContext('2d');
     new Chart(ctxOrders, {
         type: 'bar',
         data: {
             labels: @json($labels),
-            datasets: [{ label: 'Órdenes', data: @json($data), backgroundColor: '#334155', borderRadius: 4 }]
+            datasets: [{ label: 'Órdenes', data: @json($data), backgroundColor: SERIES, borderRadius: 4 }]
         },
         options: {
             responsive: true, maintainAspectRatio: false,
@@ -106,7 +109,7 @@
             labels: @json($salesLabels),
             datasets: [{
                 label: 'Ventas ($)', data: @json($salesData),
-                borderColor: '#334155', backgroundColor: 'rgba(51, 65, 85, 0.1)',
+                borderColor: SERIES, backgroundColor: __dark ? 'rgba(42,125,137,0.15)' : 'rgba(51,65,85,0.1)',
                 fill: true, tension: 0.3,
             }]
         },
