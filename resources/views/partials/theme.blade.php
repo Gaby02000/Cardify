@@ -104,6 +104,9 @@
     .bg-red-50   { background-color: var(--err-bg) !important; }
     .border-red-200 { border-color: var(--err-border) !important; }
     .text-red-700, .text-red-800 { color: var(--err-text) !important; }
+    :root.dark  .bg-amber-50 { background-color: rgba(255, 204, 77, 0.12) !important; }
+    :root.dark  .border-amber-200 { border-color: rgba(255, 204, 77, 0.30) !important; }
+    :root.dark  .text-amber-700 { color: #fcd34d !important; }
 
     /* Toggle: se ve el ícono del tema al que se cambiaría */
     :root.light .theme-icon-light { display: none; }
