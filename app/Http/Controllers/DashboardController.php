@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\UserClient;
 use App\Models\GiftCard;
 use App\Models\Category;
 use Carbon\Carbon;
@@ -67,17 +68,52 @@ class DashboardController extends Controller
         // Totales generales
         $totalUsers = User::count();
         $totalOrders = Order::count();
-        $totalGiftCards = GiftCard::count(); 
-        $totalGiftCardStock = GiftCard::sum('stock'); 
+        $totalGiftCards = GiftCard::count();
+        $totalGiftCardStock = GiftCard::sum('stock');
         $totalGiftCardStockValue = GiftCard::sum(DB::raw('stock * amount'));
 
         $totalSales = Order::sum('total_price');
 
+        // --- Métricas adicionales ---
+        $totalClients = UserClient::count();
+        $paidOrders = Order::where('status', 'pagado')->count();
+        $paidRevenue = (float) Order::where('status', 'pagado')->sum('total_price');
+
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $ordersThisMonth = Order::where('created_at', '>=', $startOfMonth)->count();
+        $salesThisMonth = (float) Order::where('created_at', '>=', $startOfMonth)
+            ->where('status', 'pagado')->sum('total_price');
+
+        // Órdenes por estado
+        $statusCounts = Order::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // Últimas órdenes
+        $recentOrders = Order::with('user')->latest('created_at')->limit(6)->get();
+
+        // Más vendidas (unidades en órdenes pagadas)
+        $topGiftCards = DB::table('order_items')
+            ->join('gift_cards', 'gift_cards.id', '=', 'order_items.gift_card_id')
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->where('orders.status', 'pagado')
+            ->select('gift_cards.title', DB::raw('SUM(order_items.quantity) as units'))
+            ->groupBy('gift_cards.title')
+            ->orderByDesc('units')
+            ->limit(5)
+            ->get();
+
+        // Stock bajo
+        $lowStock = GiftCard::where('stock', '<=', 5)
+            ->orderBy('stock')
+            ->limit(6)
+            ->get(['id', 'title', 'stock']);
+
         return view('dashboard.index', compact(
-            'labels',            
-            'data',            
-            'salesLabels',       
-            'salesData',          
+            'labels',
+            'data',
+            'salesLabels',
+            'salesData',
             'totalUsers',
             'totalOrders',
             'totalGiftCards',
@@ -85,7 +121,16 @@ class DashboardController extends Controller
             'totalGiftCardStockValue',
             'categoryLabels',
             'categoryData',
-            'totalSales' 
+            'totalSales',
+            'totalClients',
+            'paidOrders',
+            'paidRevenue',
+            'ordersThisMonth',
+            'salesThisMonth',
+            'statusCounts',
+            'recentOrders',
+            'topGiftCards',
+            'lowStock'
         ));
     }
 
