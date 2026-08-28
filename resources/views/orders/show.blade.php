@@ -2,7 +2,7 @@
 
 @section('content-base')
 <div class="p-6 w-full">
-    <h1 class="text-3xl font-bold mb-6 text-a4cadc">Detalle de Orden #{{ $order->id }}</h1>
+    <h1 class="text-2xl font-semibold mb-6 text-gray-900">Detalle de Orden #{{ $order->id }}</h1>
 
     <p class="mb-6 text-a4cadc space-y-1">
         <span><strong>Usuario:</strong> {{ $order->user->name ?? 'Usuario no disponible' }}</span><br>
@@ -14,23 +14,23 @@
     @if($order->orderItems->isEmpty())
         <p class="text-center text-gray-400">No hay items en esta orden.</p>
     @else
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-[#050f1b] text-a4cadc border border-gray-600 rounded-lg shadow-sm text-sm">
-                <thead class="bg-[#163f47] text-white text-left">
+        <div class="overflow-x-auto bg-white border border-gray-200 rounded-lg">
+            <table class="min-w-full text-sm text-gray-700">
+                <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                     <tr>
-                        <th class="py-3 px-4 border-b border-gray-600">GiftCard</th>
-                        <th class="py-3 px-4 border-b border-gray-600 text-center">Cantidad</th>
-                        <th class="py-3 px-4 border-b border-gray-600 text-right">Precio Unitario</th>
-                        <th class="py-3 px-4 border-b border-gray-600 text-right">Subtotal</th>
+                        <th class="py-3 px-4 border-b border-gray-100">GiftCard</th>
+                        <th class="py-3 px-4 border-b border-gray-200 text-center">Cantidad</th>
+                        <th class="py-3 px-4 border-b border-gray-200 text-right">Precio Unitario</th>
+                        <th class="py-3 px-4 border-b border-gray-200 text-right">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($order->orderItems as $item)
-                        <tr class="hover:bg-[#142234] transition-colors">
-                            <td class="py-3 px-4 border-b border-gray-700 font-semibold">{{ $item->giftCard->title ?? 'Giftcard no encontrada' }}</td>
-                            <td class="py-3 px-4 border-b border-gray-700 text-center">{{ $item->quantity }}</td>
-                            <td class="py-3 px-4 border-b border-gray-700 text-right">${{ number_format($item->price, 2) }}</td>
-                            <td class="py-3 px-4 border-b border-gray-700 text-right">${{ number_format($item->quantity * $item->price, 2) }}</td>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="py-3 px-4 border-b border-gray-100 font-semibold">{{ $item->giftCard->title ?? 'Giftcard no encontrada' }}</td>
+                            <td class="py-3 px-4 border-b border-gray-100 text-center">{{ $item->quantity }}</td>
+                            <td class="py-3 px-4 border-b border-gray-100 text-right">${{ number_format($item->price, 2) }}</td>
+                            <td class="py-3 px-4 border-b border-gray-100 text-right">${{ number_format($item->quantity * $item->price, 2) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -38,7 +38,7 @@
         </div>
     @endif
     <a href="{{ route('orders.pdf', $order->id) }}"
-        class="mt-6 inline-block bg-[#1e5d64] text-white px-3 py-2 rounded hover:bg-[#2a7d89] transition">
+        class="mt-6 inline-block bg-gray-800 text-white px-3 py-2 rounded hover:bg-gray-900 transition">
         Descargar PDF
     </a>
 </div>

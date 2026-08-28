@@ -2,12 +2,12 @@
 
 @section('content-base')
 <div class="p-6 w-full">
-    <h1 class="text-3xl font-bold mb-6 text-a4cadc">Listado de Categorías</h1>
+    <h1 class="text-2xl font-semibold mb-6 text-gray-900">Listado de Categorías</h1>
 
     {{-- Formulario de búsqueda --}}
     <div class="mb-6 flex flex-wrap items-center space-x-4">
         <input type="text" id="search" placeholder="Buscar categoría..." 
-               class="px-4 py-2 rounded bg-[#1e2d3b] text-white placeholder-gray-400 focus:outline-none focus:ring w-1/3">
+               class="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 w-full sm:w-72">
     </div>
 
     {{-- Contenedor dinámico --}}

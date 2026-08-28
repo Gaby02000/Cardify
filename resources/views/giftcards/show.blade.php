@@ -4,8 +4,8 @@
 
 @section('content-base')
     <div class="flex-1 flex items-center justify-center p-8">
-        <div class="w-full max-w-xl bg-[#050f1b] text-a4cadc rounded-2xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold mb-6 text-center">Detalle de GiftCard</h2>
+        <div class="w-full max-w-xl bg-white border border-gray-200 rounded-lg p-8 text-gray-700">
+            <h2 class="text-xl font-semibold mb-6 text-center text-gray-900">Detalle de GiftCard</h2>
 
             @if ($giftcard->image)
                 <div class="mb-4 text-center">
@@ -67,7 +67,7 @@
                 </form>
 
                 <a href="{{ route('giftcards.index') }}"
-                   class="text-center bg-gray-600 hover:bg-gray-700 text-white py-2 rounded font-semibold transition">
+                   class="text-center border border-gray-300 text-gray-700 hover:bg-gray-100 py-2 rounded font-semibold transition">
                     Volver al listado
                 </a>
             </div>
