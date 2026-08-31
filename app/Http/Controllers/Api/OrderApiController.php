@@ -131,15 +131,19 @@ class OrderApiController extends Controller
 
     /**
      * Historial de compras del usuario autenticado.
+     * Se numera por usuario (1, 2, 3...) según el orden de compra; nunca se
+     * expone el id real de la orden.
      */
     public function index(Request $request)
     {
         $orders = Order::where('user_client_id', $request->user()->id)
             ->with('orderItems.giftCard')
-            ->latest('created_at')
+            ->orderBy('created_at')
+            ->orderBy('id')
             ->get()
-            ->map(fn (Order $order) => [
-                'id' => $order->id,
+            ->values()
+            ->map(fn (Order $order, int $i) => [
+                'number' => $i + 1,
                 'status' => $order->status,
                 'total_price' => $order->total_price,
                 'created_at' => $order->created_at,
@@ -149,7 +153,9 @@ class OrderApiController extends Controller
                     'quantity' => $oi->quantity,
                     'price' => $oi->price,
                 ])->values(),
-            ]);
+            ])
+            ->reverse()
+            ->values();
 
         return response()->json(['orders' => $orders]);
     }
