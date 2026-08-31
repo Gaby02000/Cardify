@@ -53,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [LoginApiController::class, 'user']);
     Route::post('/logout', [LoginApiController::class, 'logout']);
 
+    Route::get('/orders', [OrderApiController::class, 'index']);
     Route::post('/orders', [OrderApiController::class, 'store']);
     Route::get('/orders/{order}', [OrderApiController::class, 'show']);
     Route::post('/orders/{order}/confirm', [OrderApiController::class, 'confirm']);
