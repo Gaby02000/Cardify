@@ -2,6 +2,19 @@
 
 use Illuminate\Support\Str;
 
+/*
+| Neon (Postgres serverless) enruta las conexiones por SNI. Algunos runtimes
+| traen un libpq viejo sin soporte de SNI (p. ej. el de vercel-php) y la
+| conexión falla con "Endpoint ID is not specified". Pasamos el endpoint id
+| por PGOPTIONS para que el proxy de Neon pueda enrutar igual.
+*/
+$dbHost = env('DB_HOST', '');
+if (is_string($dbHost) && str_contains($dbHost, '.neon.tech') && ! getenv('PGOPTIONS')) {
+    $neonPgOptions = 'endpoint=' . explode('.', $dbHost, 2)[0];
+    putenv('PGOPTIONS=' . $neonPgOptions);
+    $_ENV['PGOPTIONS'] = $_SERVER['PGOPTIONS'] = $neonPgOptions;
+}
+
 return [
 
     /*
@@ -94,7 +107,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'require'),
         ],
 
         'sqlsrv' => [

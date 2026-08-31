@@ -40,6 +40,17 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'user_client' => [
+            'driver' => 'session',
+            'provider' => 'user_clients',
+        ],
+
+        // Guard por token (Sanctum) para la sesión del cliente en el frontend SPA.
+        // No afecta al panel administrativo, que sigue usando el guard 'web'.
+        'sanctum' => [
+            'driver' => 'sanctum',
+            'provider' => 'user_clients',
+        ],
     ],
 
     /*
@@ -62,13 +73,12 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\User::class,
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'user_clients' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\UserClient::class,
+        ],
     ],
 
     /*

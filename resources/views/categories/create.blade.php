@@ -1,30 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Agregar Categoría</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            background-color: #050f1b;
-            color: #a4cadc;
-        }
-        .main-bg {
-            background-color: #163f47;
-        }
-    </style>
-</head>
-<body class="min-h-screen flex items-center justify-center">
+@extends('welcome')
 
-    <div class="main-bg p-8 rounded shadow-md w-full max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-6 text-white">Agregar Categoría</h2>
+@section('title', 'Agregar Categoría')
+
+@section('content-base')
+<div class="flex-1 flex items-center justify-center p-8">
+    <div class="w-full max-w-xl bg-white border border-gray-200 rounded-lg p-8 text-gray-700">
+        <h2 class="text-xl font-semibold mb-6 text-center text-gray-900">Agregar Categoría</h2>
 
         @if ($errors->any())
-            <div class="mb-4 text-red-500">
-                <ul class="list-disc pl-5">
+            <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md mb-4 text-sm">
+                <strong>Errores:</strong>
+                <ul class="list-disc list-inside">
                     @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
+                        <li>• {{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -33,20 +21,25 @@
         <form action="{{ route('categories.store') }}" method="POST" class="space-y-4">
             @csrf
             <div>
-                <label for="name" class="block text-sm font-semibold mb-1">Nombre de la categoría</label>
+                <label for="name" class="block mb-1">Nombre de la categoría</label>
                 <input type="text" name="name" id="name" required
-                       class="w-full px-3 py-2 rounded border border-gray-300 text-black">
+                       class="w-full p-2 rounded-md bg-white border border-gray-300 text-gray-900">
             </div>
 
-            <div class="flex justify-between items-center">
-                <a href="{{ url()->previous() }}" class="text-sm text-blue-300 hover:underline">← Volver</a>
+            <div class="flex justify-between items-center space-x-4">
+                <!-- Volver al menú -->
+                <a href="{{ url()->previous() }}" 
+                   class="text-center border border-gray-300 text-gray-700 hover:bg-gray-100 py-2 rounded font-semibold transition w-full max-w-xs">
+                    ← Volver al menú
+                </a>
+
+                <!-- Botón Guardar -->
                 <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        class="text-center bg-gray-800 hover:bg-gray-900 text-white py-2 rounded font-semibold transition w-full max-w-xs">
                     Guardar
                 </button>
             </div>
         </form>
     </div>
-
-</body>
-</html>
+</div>
+@endsection
