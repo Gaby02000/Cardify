@@ -129,6 +129,31 @@ class OrderApiController extends Controller
         ]);
     }
 
+    /**
+     * Historial de compras del usuario autenticado.
+     */
+    public function index(Request $request)
+    {
+        $orders = Order::where('user_client_id', $request->user()->id)
+            ->with('orderItems.giftCard')
+            ->latest('created_at')
+            ->get()
+            ->map(fn (Order $order) => [
+                'id' => $order->id,
+                'status' => $order->status,
+                'total_price' => $order->total_price,
+                'created_at' => $order->created_at,
+                'codes' => $order->status === 'pagado' ? ($order->codes ?? []) : [],
+                'items' => $order->orderItems->map(fn ($oi) => [
+                    'title' => $oi->giftCard->title ?? 'Gift card',
+                    'quantity' => $oi->quantity,
+                    'price' => $oi->price,
+                ])->values(),
+            ]);
+
+        return response()->json(['orders' => $orders]);
+    }
+
     public function show(Request $request, Order $order)
     {
         $user = $request->user();
