@@ -48,7 +48,15 @@
                 <td class="py-2 px-3 border-b border-gray-100">{{ Str::limit($giftcard->description, 100) }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->category->name ?? 'Sin categoría' }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->amount, 2) }}</td>
-                <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->price, 2) }}</td>
+                <td class="py-2 px-3 border-b border-gray-100">
+                    @if ($giftcard->has_discount)
+                        <span class="text-gray-400 line-through">${{ number_format($giftcard->price, 2) }}</span>
+                        <span class="font-semibold text-gray-900">${{ number_format($giftcard->final_price, 2) }}</span>
+                        <span class="ml-1 rounded bg-emerald-50 px-1 py-0.5 text-xs font-semibold text-emerald-700">-{{ $giftcard->discount_percent }}%</span>
+                    @else
+                        ${{ number_format($giftcard->price, 2) }}
+                    @endif
+                </td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->stock }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">
                     <div class="flex items-center gap-2">

@@ -105,6 +105,7 @@
                 </div>
 
                 <a href="{{ route('orders.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Órdenes emitidas</a>
+                <a href="{{ route('discounts.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Descuentos</a>
                 <a href="{{ route('promotions.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Promociones</a>
             </nav>
         </aside>
