@@ -7,14 +7,32 @@
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[16%]">Título</th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[16%]">Descripción</th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[15%]">Categoría</th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="amount">
-                    Monto <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[10%]">
+                    <button type="button" data-field="amount"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Monto</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="price">
-                    Precio <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[10%]">
+                    <button type="button" data-field="price"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Precio</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[7%] cursor-pointer select-none" data-field="stock">
-                    Stock <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[7%]">
+                    <button type="button" data-field="stock"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Stock</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[12%]">Detalle</th>
             </tr>
@@ -30,7 +48,15 @@
                 <td class="py-2 px-3 border-b border-gray-100">{{ Str::limit($giftcard->description, 100) }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->category->name ?? 'Sin categoría' }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->amount, 2) }}</td>
-                <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->price, 2) }}</td>
+                <td class="py-2 px-3 border-b border-gray-100">
+                    @if ($giftcard->has_discount)
+                        <span class="text-gray-400 line-through">${{ number_format($giftcard->price, 2) }}</span>
+                        <span class="font-semibold text-gray-900">${{ number_format($giftcard->final_price, 2) }}</span>
+                        <span class="ml-1 rounded bg-emerald-50 px-1 py-0.5 text-xs font-semibold text-emerald-700">-{{ $giftcard->discount_percent }}%</span>
+                    @else
+                        ${{ number_format($giftcard->price, 2) }}
+                    @endif
+                </td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->stock }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">
                     <div class="flex items-center gap-2">

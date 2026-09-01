@@ -95,15 +95,27 @@
         });
     }
 
+    const SORT_ICON_NEUTRAL = '<path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />';
+    const SORT_ICON_ASC = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 15l6-6 6 6" />';
+    const SORT_ICON_DESC = '<path stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6" />';
+
+    const SORT_BTN_ACTIVE = ['border-gray-900', 'bg-gray-900', 'text-white'];
+    const SORT_BTN_IDLE = ['border-gray-300', 'bg-white', 'text-gray-600'];
+
     function updateSortIcons() {
-        document.querySelectorAll('.sortable').forEach(header => {
-            const icon = header.querySelector('.sort-icon');
-            const field = header.dataset.field;
-            if (field === sortField) {
-                icon.textContent = sortDirection === 'asc' ? '↑' : (sortDirection === 'desc' ? '↓' : '');
-            } else {
-                icon.textContent = '';
-            }
+        document.querySelectorAll('.sortable').forEach(btn => {
+            const icon = btn.querySelector('.sort-icon');
+            const field = btn.dataset.field;
+            const active = field === sortField && sortDirection;
+
+            btn.classList.remove(...SORT_BTN_ACTIVE, ...SORT_BTN_IDLE);
+            btn.classList.add(...(active ? SORT_BTN_ACTIVE : SORT_BTN_IDLE));
+
+            icon.classList.toggle('text-white', !!active);
+            icon.classList.toggle('text-gray-400', !active);
+            icon.innerHTML = active
+                ? (sortDirection === 'asc' ? SORT_ICON_ASC : SORT_ICON_DESC)
+                : SORT_ICON_NEUTRAL;
         });
     }
 

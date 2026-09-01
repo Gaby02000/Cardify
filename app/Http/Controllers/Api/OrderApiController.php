@@ -51,7 +51,8 @@ class OrderApiController extends Controller
             }
         }
 
-        $total = $cart->cartItems->sum(fn ($i) => $i->quantity * $i->giftCard->price);
+        // Se cobra el precio ya con el descuento activo de cada gift card.
+        $total = $cart->cartItems->sum(fn ($i) => $i->quantity * (float) $i->giftCard->final_price);
 
         try {
             DB::beginTransaction();
@@ -69,7 +70,7 @@ class OrderApiController extends Controller
                     'cart_item_id' => $item->id,
                     'gift_card_id' => $item->gift_card_id,
                     'quantity' => $item->quantity,
-                    'price' => $item->giftCard->price,
+                    'price' => $item->giftCard->final_price,
                 ]);
             }
 
