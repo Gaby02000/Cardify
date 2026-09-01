@@ -147,14 +147,17 @@ class OrderPaymentService
             return;
         }
 
-        // Dedupe: el webhook de MP y el retorno del frontend pueden confirmar
-        // la misma orden casi a la vez. Cache::add es atómico.
-        if (! Cache::add('push-order-notified:' . $order->id, true, now()->addDay())) {
+        $subscriptions = PushSubscription::where('user_client_id', $order->user_client_id)->get();
+        if ($subscriptions->isEmpty()) {
+            // Sin dispositivos suscriptos: no marcamos nada, así si el usuario
+            // se suscribe más tarde y la orden se re-confirma, se puede enviar.
             return;
         }
 
-        $subscriptions = PushSubscription::where('user_client_id', $order->user_client_id)->get();
-        if ($subscriptions->isEmpty()) {
+        // Dedupe: el webhook de MP y el retorno del frontend pueden confirmar
+        // la misma orden casi a la vez. Cache::add es atómico.
+        $dedupeKey = 'push-order-notified:' . $order->id;
+        if (! Cache::add($dedupeKey, true, now()->addDay())) {
             return;
         }
 
@@ -169,6 +172,7 @@ class OrderPaymentService
                 'tag' => 'cardify-order-' . $order->id,
             ], $subscriptions);
         } catch (\Throwable $e) {
+            Cache::forget($dedupeKey); // permitir reintento
             Log::warning('Push de compra no enviado: ' . $e->getMessage());
         }
     }
