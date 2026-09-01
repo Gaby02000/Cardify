@@ -38,7 +38,9 @@ class GiftCardApiController extends Controller
             $query->orderBy('id', 'desc'); // novedades primero por defecto
         }
 
-        $perPage = max(1, min(50, (int) $request->input('per_page', 10)));
+        // Tope alto: el frontend puede pedir todo el catálogo de una para
+        // navegarlo y filtrarlo sin conexión.
+        $perPage = max(1, min(1000, (int) $request->input('per_page', 10)));
 
         return response()->json($query->paginate($perPage)->withQueryString());
     }
