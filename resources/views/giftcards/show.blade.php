@@ -56,11 +56,11 @@
                     Editar
                 </a>
 
-                <form action="{{ route('giftcards.destroy', $giftcard->id) }}" method="POST"
-                      onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta giftcard?');">
+                <form action="{{ route('giftcards.destroy', $giftcard->id) }}" method="POST" x-data>
                     @csrf
                     @method('DELETE')
-                    <button type="submit"
+                    <button type="button"
+                            x-on:click="$dispatch('confirm-delete', { form: $root, message: @js('Se va a borrar la gift card «' . $giftcard->title . '». Esta acción no se puede deshacer.') })"
                             class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-semibold transition">
                         Eliminar
                     </button>
