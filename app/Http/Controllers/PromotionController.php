@@ -22,14 +22,13 @@ class PromotionController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:80'],
             'body' => ['required', 'string', 'max:180'],
-            'url' => ['nullable', 'string', 'max:255'],
         ]);
 
         try {
             $result = $push->send([
                 'title' => $data['title'],
                 'body' => $data['body'],
-                'url' => $data['url'] ?: '/',
+                'url' => '/',
                 'tag' => 'cardify-promo',
             ]);
         } catch (\Throwable $e) {

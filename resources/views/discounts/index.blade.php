@@ -108,6 +108,12 @@
                 <p class="mt-2 text-xs text-gray-500">Se aplica el mismo descuento a todas las tarjetas de la categoría.</p>
             </div>
 
+            <label class="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" name="notify" value="1" checked
+                       class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900/20">
+                Avisar a los suscriptores por notificación push
+            </label>
+
             <button type="submit"
                     class="inline-flex items-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-900">
                 Aplicar descuento
