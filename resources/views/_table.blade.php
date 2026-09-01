@@ -7,14 +7,32 @@
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[16%]">Título</th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[16%]">Descripción</th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[15%]">Categoría</th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="amount">
-                    Monto <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[10%]">
+                    <button type="button" data-field="amount"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Monto</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="price">
-                    Precio <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[10%]">
+                    <button type="button" data-field="price"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Precio</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[7%] cursor-pointer select-none" data-field="stock">
-                    Stock <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[7%]">
+                    <button type="button" data-field="stock"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Stock</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[12%]">Detalle</th>
             </tr>
