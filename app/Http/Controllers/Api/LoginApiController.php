@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class LoginApiController extends Controller
 {
@@ -84,6 +85,42 @@ class LoginApiController extends Controller
             ]
         ]);
     }
-    // app/Http/Controllers/Api/LoginApiController.php
 
+    /**
+     * Actualiza los datos de la cuenta del usuario autenticado.
+     * La contraseña es opcional; si viene, hay que mandar la actual.
+     */
+    public function update(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('user_clients', 'email')->ignore($user->id)],
+            'current_password' => ['nullable', 'string', 'required_with:password'],
+            'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        if (! empty($data['password'])) {
+            if (! Hash::check($data['current_password'] ?? '', $user->password)) {
+                return response()->json([
+                    'errors' => ['current_password' => ['The current password is incorrect.']],
+                ], 422);
+            }
+            $user->password = Hash::make($data['password']);
+        }
+
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->save();
+
+        return response()->json([
+            'message' => 'Datos actualizados',
+            'user' => [
+                'id'    => $user->id,
+                'name'  => $user->name,
+                'email' => $user->email,
+            ],
+        ]);
+    }
 }

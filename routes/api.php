@@ -51,6 +51,7 @@ Route::delete('/cart-item/{cartItem}', [CartItemApiController::class, 'destroy']
 */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [LoginApiController::class, 'user']);
+    Route::put('/user', [LoginApiController::class, 'update']);
     Route::post('/logout', [LoginApiController::class, 'logout']);
 
     Route::get('/orders', [OrderApiController::class, 'index']);
