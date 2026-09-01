@@ -182,7 +182,9 @@ class OrderApiController extends Controller
         $query->orderBy($sortCol, $dir)->orderBy('id', $dir);
 
         // --- Paginación ---
-        $perPage = max(1, min(50, (int) $request->input('per_page', 10)));
+        // Tope alto: el frontend puede pedir todo el historial de una para
+        // manipularlo sin conexión.
+        $perPage = max(1, min(1000, (int) $request->input('per_page', 10)));
         $paginator = $query->paginate($perPage)->withQueryString();
 
         $paginator->getCollection()->transform(fn (Order $order) => [
