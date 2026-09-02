@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Services\OrderPaymentService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -196,12 +197,37 @@ class OrderApiController extends Controller
             'codes' => $order->status === 'pagado' ? ($order->codes ?? []) : [],
             'items' => $order->orderItems->map(fn ($oi) => [
                 'title' => $oi->giftCard->title ?? 'Gift card',
+                'image' => $oi->giftCard->image ?? null,
                 'quantity' => $oi->quantity,
                 'price' => $oi->price,
+                'line_total' => round((float) $oi->price * $oi->quantity, 2),
             ])->values(),
         ]);
 
         return response()->json($paginator);
+    }
+
+    /**
+     * Recibo en PDF de una compra del usuario autenticado. Se pide por el
+     * número correlativo (1..N), nunca por el id real de la orden.
+     */
+    public function receipt(Request $request, int $number)
+    {
+        $ids = Order::where('user_client_id', $request->user()->id)
+            ->orderBy('created_at')->orderBy('id')
+            ->pluck('id');
+
+        $orderId = $ids[$number - 1] ?? null;
+        abort_if(! $orderId, 404, 'Compra no encontrada');
+
+        $order = Order::with(['orderItems.giftCard', 'user'])->findOrFail($orderId);
+
+        $pdf = Pdf::loadView('pdf.receipt', [
+            'order' => $order,
+            'number' => $number,
+        ])->setPaper('a4');
+
+        return $pdf->download("recibo-cardify-{$number}.pdf");
     }
 
     public function show(Request $request, Order $order)
