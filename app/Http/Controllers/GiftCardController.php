@@ -35,6 +35,24 @@ class GiftCardController extends Controller
             });
         }
 
+        // Filtro por estado (visible / oculta en la tienda)
+        if ($request->filled('estado')) {
+            if ($request->input('estado') === 'activa') {
+                $query->where('is_active', true);
+            } elseif ($request->input('estado') === 'oculta') {
+                $query->where('is_active', false);
+            }
+        }
+
+        // Filtro por nivel de stock
+        if ($request->filled('stock_level')) {
+            if ($request->input('stock_level') === 'out') {
+                $query->where('stock', '<=', 0);
+            } elseif ($request->input('stock_level') === 'low') {
+                $query->where('stock', '>', 0)->where('stock', '<=', 5);
+            }
+        }
+
         // Ordenamiento
         if ($request->has('sort')) {
             $sortField = $request->input('sort');
@@ -72,7 +90,10 @@ class GiftCardController extends Controller
             'price' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'stock' => 'required|integer',
+            'is_active' => 'nullable|boolean',
         ]);
+
+        $data['is_active'] = $request->boolean('is_active', true);
 
         $slugTitle = Str::slug($data['title']);
         $timestamp = time();
@@ -160,12 +181,14 @@ class GiftCardController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'stock' => 'required|integer|min:0',
             'id_category' => 'required|exists:categories,id',
+            'is_active' => 'nullable|boolean',
         ]);
 
         $giftcard = Giftcard::findOrFail($id);
         // $giftcard->update($request->all());
 
         $data = $request->all();
+        $data['is_active'] = $request->boolean('is_active');
 
         // if ($request->hasFile('image')) {
         //     $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
@@ -253,5 +276,39 @@ class GiftCardController extends Controller
     {
         $giftcard = GiftCard::findOrFail($id);
         return view('giftcards.show', compact('giftcard'));
+    }
+
+    // Mostrar / ocultar de la tienda sin borrar
+    public function toggleActive(Request $request, GiftCard $giftcard)
+    {
+        $giftcard->is_active = ! $giftcard->is_active;
+        $giftcard->save();
+
+        $msg = $giftcard->is_active
+            ? "«{$giftcard->title}» ahora está visible en la tienda."
+            : "«{$giftcard->title}» quedó oculta de la tienda.";
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'is_active' => $giftcard->is_active,
+                'message' => $msg,
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    // Clonar una tarjeta para cargar rápido otra denominación de la misma marca
+    public function duplicate(GiftCard $giftcard)
+    {
+        $copy = $giftcard->replicate();
+        $copy->title = Str::limit($giftcard->title, 240, '') . ' (copia)';
+        $copy->is_active = false;         // nace oculta hasta revisarla
+        $copy->discount_percent = null;  // sin promo heredada
+        $copy->save();
+
+        return redirect()
+            ->route('giftcards.edit', $copy->id)
+            ->with('success', 'Copia creada como oculta. Ajustá los datos y activala cuando quieras.');
     }
 }

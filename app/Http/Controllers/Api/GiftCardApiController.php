@@ -11,7 +11,8 @@ class GiftCardApiController extends Controller
 {
     public function index(Request $request)
     {
-        $query = GiftCard::with('category');
+        // Solo las visibles: las ocultas por el admin no salen en la tienda.
+        $query = GiftCard::with('category')->where('is_active', true);
 
         if ($category = $request->input('category')) {
             $query->where('id_category', $category);
@@ -47,7 +48,7 @@ class GiftCardApiController extends Controller
 
     public function show($id)
     {
-        $giftcard = GiftCard::with('category')->findOrFail($id);
+        $giftcard = GiftCard::with('category')->where('is_active', true)->findOrFail($id);
         return response()->json($giftcard);
     }
 }

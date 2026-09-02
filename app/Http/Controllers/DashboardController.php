@@ -103,11 +103,13 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Stock bajo
+        // Stock bajo / sin stock
         $lowStock = GiftCard::where('stock', '<=', 5)
             ->orderBy('stock')
-            ->limit(6)
+            ->limit(8)
             ->get(['id', 'title', 'stock']);
+        $lowStockCount = GiftCard::where('stock', '>', 0)->where('stock', '<=', 5)->count();
+        $outOfStockCount = GiftCard::where('stock', '<=', 0)->count();
 
         return view('dashboard.index', compact(
             'labels',
@@ -130,7 +132,9 @@ class DashboardController extends Controller
             'statusCounts',
             'recentOrders',
             'topGiftCards',
-            'lowStock'
+            'lowStock',
+            'lowStockCount',
+            'outOfStockCount'
         ));
     }
 

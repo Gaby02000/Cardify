@@ -150,12 +150,31 @@
 
         <div class="space-y-4">
             <div class="bg-white border border-gray-200 rounded-lg p-5">
-                <h2 class="text-sm font-medium text-gray-500 mb-3">Stock bajo</h2>
-                @forelse ($lowStock as $gc)
-                    <div class="flex items-center justify-between py-1.5 text-sm">
-                        <span class="truncate pr-3 text-gray-700">{{ $gc->title }}</span>
-                        <span class="shrink-0 font-semibold {{ $gc->stock == 0 ? 'text-red-700' : 'text-amber-700' }}">{{ $gc->stock }}</span>
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-sm font-medium text-gray-500">Stock bajo</h2>
+                    <div class="flex items-center gap-1.5">
+                        @if ($outOfStockCount > 0)
+                            <a href="{{ route('giftcards.index', ['stock_level' => 'out']) }}"
+                               class="rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700 hover:bg-red-100">
+                                {{ $outOfStockCount }} sin stock
+                            </a>
+                        @endif
+                        @if ($lowStockCount > 0)
+                            <a href="{{ route('giftcards.index', ['stock_level' => 'low']) }}"
+                               class="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-700 hover:bg-amber-100">
+                                {{ $lowStockCount }} por agotarse
+                            </a>
+                        @endif
                     </div>
+                </div>
+                @forelse ($lowStock as $gc)
+                    <a href="{{ route('giftcards.show', $gc->id) }}"
+                       class="flex items-center justify-between py-1.5 text-sm hover:bg-gray-50 -mx-2 px-2 rounded">
+                        <span class="truncate pr-3 text-gray-700">{{ $gc->title }}</span>
+                        <span class="shrink-0 font-semibold {{ $gc->stock == 0 ? 'text-red-700' : 'text-amber-700' }}">
+                            {{ $gc->stock == 0 ? 'Sin stock' : $gc->stock }}
+                        </span>
+                    </a>
                 @empty
                     <p class="text-sm text-gray-500">Todo con stock holgado.</p>
                 @endforelse

@@ -28,6 +28,10 @@ use Mockery\Generator\StringManipulation\Pass\Pass;
 
 Route::get('/', [GiftCardController::class, 'index'])->name('home')->middleware('auth');
 // Para giftcards
+Route::middleware('auth')->group(function () {
+    Route::post('/giftcards/{giftcard}/toggle', [GiftCardController::class, 'toggleActive'])->name('giftcards.toggle');
+    Route::post('/giftcards/{giftcard}/duplicate', [GiftCardController::class, 'duplicate'])->name('giftcards.duplicate');
+});
 Route::resource('/giftcards', GiftCardController::class)->middleware('auth');
 // Para categorias
 Route::resource('/categories', CategoryController::class)->middleware('auth');
