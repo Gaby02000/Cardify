@@ -126,11 +126,12 @@ class GiftCardController extends Controller
                 if (isset($result['secure_url'])) {
                     $data['image'] = $result['secure_url'];
                 } else {
-                    return back()->withErrors(['image' => 'Cloudinary error: ' . ($result['error']['message'] ?? 'Unknown error')]);
+                    return back()->withInput()->withErrors(['image' => 'No se pudo subir la imagen. Puede ser demasiado pesada o tener un formato no admitido (máx. 2 MB; JPG, PNG, GIF, WEBP o SVG).']);
                 }
                 //$data['image'] = $result->getSecurePath();
             } catch (\Exception $e) {
-                return back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
+                Log::warning('Cloudinary upload falló: ' . $e->getMessage());
+                return back()->withInput()->withErrors(['image' => 'No se pudo subir la imagen. Probá de nuevo con una imagen más liviana (máx. 2 MB).']);
             }
         } else {
             Log::info('ℹ No se recibió archivo de imagen');
@@ -156,7 +157,7 @@ class GiftCardController extends Controller
             'description' => 'nullable|string',
             'amount' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'stock' => 'required|integer|min:0',
             'id_category' => 'required|exists:categories,id',
         ]);
@@ -222,11 +223,12 @@ class GiftCardController extends Controller
                 if (isset($result['secure_url'])) {
                     $data['image'] = $result['secure_url'];
                 } else {
-                    return back()->withErrors(['image' => 'Cloudinary error: ' . ($result['error']['message'] ?? 'Unknown error')]);
+                    return back()->withInput()->withErrors(['image' => 'No se pudo subir la imagen. Puede ser demasiado pesada o tener un formato no admitido (máx. 2 MB; JPG, PNG, GIF, WEBP o SVG).']);
                 }
                 //$data['image'] = $result->getSecurePath();
             } catch (\Exception $e) {
-                return back()->withErrors(['image' => 'Error al subir la imagen: ' . $e->getMessage()]);
+                Log::warning('Cloudinary upload falló: ' . $e->getMessage());
+                return back()->withInput()->withErrors(['image' => 'No se pudo subir la imagen. Probá de nuevo con una imagen más liviana (máx. 2 MB).']);
             }
         } else {
             Log::info('ℹ No se recibió archivo de imagen');

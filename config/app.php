@@ -78,8 +78,10 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'es'),
 
+    // Se deja en inglés para que cualquier texto sin traducir caiga en los
+    // mensajes que trae el framework en vez de mostrar la clave cruda.
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
