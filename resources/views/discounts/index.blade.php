@@ -9,7 +9,7 @@
         <h1 class="text-2xl font-semibold text-gray-900">Descuentos</h1>
         <p class="mt-1 text-sm text-gray-500">
             Poné una o varias tarjetas en promoción, o aplicá el mismo descuento a toda una categoría.
-            El precio con descuento se muestra en la tienda y es el que se cobra al pagar.
+            El precio con descuento se muestra en la página y es el que se cobra al pagar.
         </p>
     </div>
 

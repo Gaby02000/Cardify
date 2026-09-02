@@ -48,11 +48,11 @@
                     <strong class="block">Estado:</strong>
                     @if ($giftcard->is_active)
                         <p class="inline-flex items-center gap-1.5 text-emerald-700">
-                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Activa en la tienda
+                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Se muestra en la página
                         </p>
                     @else
                         <p class="inline-flex items-center gap-1.5 text-gray-500">
-                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> Oculta de la tienda
+                            <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span> No se muestra en la página
                         </p>
                     @endif
                 </div>
@@ -67,7 +67,7 @@
                 @csrf
                 <button type="submit"
                         class="w-full border py-2 rounded font-semibold transition {{ $giftcard->is_active ? 'border-gray-300 text-gray-700 hover:bg-gray-100' : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50' }}">
-                    {{ $giftcard->is_active ? 'Ocultar de la tienda' : 'Mostrar en la tienda' }}
+                    {{ $giftcard->is_active ? 'Ocultar de la página' : 'Mostrar en la página' }}
                 </button>
             </form>
 
