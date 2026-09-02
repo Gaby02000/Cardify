@@ -18,7 +18,6 @@
     $statusLabel = $statusLabels[$order->status] ?? ucfirst($order->status ?? 'Pendiente');
     $isPaid = in_array($order->status, ['pagado', 'completed', 'shipped', 'authorized'], true);
     $money = fn ($n) => '$' . number_format((float) $n, 2, ',', '.');
-    $codes = is_array($order->codes ?? null) ? $order->codes : [];
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -63,11 +62,11 @@
         .totals .lbl { text-align: right; color: #6b7280; }
         .totals .amt { text-align: right; font-weight: bold; font-size: 14px; color: #111827; width: 130px; }
 
-        .codes { margin-top: 26px; }
-        .codes h3 { font-size: 12px; color: #111827; margin: 0 0 8px; }
-        .codes table { width: 100%; border-collapse: collapse; }
-        .codes td { padding: 7px 10px; border: 1px solid #e5e7eb; font-size: 11px; }
-        .codes .code { font-weight: bold; letter-spacing: .04em; }
+        .note {
+            margin-top: 24px; padding: 10px 12px; border-radius: 6px;
+            background: #f9fafb; border: 1px solid #e5e7eb;
+            font-size: 10px; color: #6b7280;
+        }
 
         .foot { margin-top: 34px; font-size: 10px; color: #9ca3af; text-align: center; }
     </style>
@@ -122,18 +121,11 @@
         </tr>
     </table>
 
-    @if ($isPaid && count($codes))
-        <div class="codes">
-            <h3>Códigos entregados</h3>
-            <table>
-                @foreach ($codes as $c)
-                    <tr>
-                        <td>{{ is_array($c) ? ($c['gift_card'] ?? 'Gift card') : 'Gift card' }}</td>
-                        <td class="code r">{{ is_array($c) ? ($c['code'] ?? '') : $c }}</td>
-                    </tr>
-                @endforeach
-            </table>
-        </div>
+    @if ($isPaid)
+        <p class="note">
+            Los códigos de tus gift cards no se incluyen en este comprobante por seguridad.
+            Los encontrás en «Mis compras» dentro de tu cuenta de Cardify.
+        </p>
     @endif
 
     <p class="foot">Este comprobante fue generado automáticamente por Cardify. Conservalo para tus registros.</p>
