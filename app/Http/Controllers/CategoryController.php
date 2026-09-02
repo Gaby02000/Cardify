@@ -54,7 +54,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = Category::with('user')->findOrFail($id);
+        $category = Category::findOrFail($id);
         return view('categories.show', compact('category'));
     }
 
