@@ -56,6 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/orders', [OrderApiController::class, 'index']);
     Route::post('/orders', [OrderApiController::class, 'store']);
+    Route::get('/orders/receipt/{number}', [OrderApiController::class, 'receipt'])
+        ->whereNumber('number');
     Route::get('/orders/{order}', [OrderApiController::class, 'show']);
     Route::post('/orders/{order}/confirm', [OrderApiController::class, 'confirm']);
 });
