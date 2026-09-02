@@ -42,6 +42,8 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255'
         ]);
 
+        $validated['user_id'] = $request->user()?->id;
+
         Category::create($validated);
 
         return redirect()->route('categories.index')->with('success', 'Categoría creada con éxito.');
@@ -52,7 +54,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        $category = Category::findOrFail($id);
+        $category = Category::with('user')->findOrFail($id);
         return view('categories.show', compact('category'));
     }
 

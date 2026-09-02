@@ -19,8 +19,8 @@
                 </div>
 
                 <div>
-                    <strong class="block">Creado por:</strong>
-                    <p>{{ $category->user->name ?? 'Desconocido' }}</p>
+                    <strong class="block">Creada por:</strong>
+                    <p>{{ $category->user?->name ?? 'Sin registro' }}</p>
                 </div>
             </div>
 
