@@ -39,23 +39,24 @@ class DiscountController extends Controller
         ]);
 
         $query = GiftCard::query();
-        $target = null; // qué nombrar en la notificación
+        $categoryName = null;
 
         if ($data['scope'] === 'category') {
             if (empty($data['category_id'])) {
                 return back()->with('error', 'Elegí una categoría.');
             }
             $query->where('id_category', $data['category_id']);
-            $target = optional(Category::find($data['category_id']))->name;
+            $categoryName = optional(Category::find($data['category_id']))->name;
         } else {
             if (empty($data['gift_card_ids'])) {
                 return back()->with('error', 'Seleccioná al menos una tarjeta.');
             }
             $query->whereIn('id', $data['gift_card_ids']);
-            if (count($data['gift_card_ids']) === 1) {
-                $target = optional(GiftCard::find($data['gift_card_ids'][0]))->title;
-            }
         }
+
+        // Títulos de las tarjetas afectadas (para nombrarlas en la notificación),
+        // tomados antes de actualizar. Alcanza con los primeros para el texto.
+        $titles = (clone $query)->orderBy('title')->limit(3)->pluck('title')->all();
 
         $count = $query->update(['discount_percent' => $data['percent']]);
 
@@ -67,18 +68,35 @@ class DiscountController extends Controller
         );
 
         if ($request->boolean('notify') && $count > 0) {
-            $message .= $this->notifyDiscount($push, $data['percent'], $count, $target);
+            $message .= $this->notifyDiscount($push, $data['percent'], $titles, $count, $categoryName);
         }
 
         return back()->with('success', $message);
     }
 
     /**
-     * Avisa a los suscriptores que hay una nueva promoción de precio.
+     * Avisa a los suscriptores que hay una nueva promoción de precio,
+     * nombrando la(s) tarjeta(s) o la categoría afectada.
      */
-    private function notifyDiscount(WebPushService $push, int $percent, int $count, ?string $target): string
-    {
-        $detail = $target ?: ($count === 1 ? '1 tarjeta' : "{$count} tarjetas");
+    private function notifyDiscount(
+        WebPushService $push,
+        int $percent,
+        array $titles,
+        int $count,
+        ?string $categoryName,
+    ): string {
+        if ($categoryName && $count > 1) {
+            $detail = "las gift cards de {$categoryName}";
+        } elseif ($count === 1 && isset($titles[0])) {
+            $detail = "«{$titles[0]}»";
+        } elseif ($count > 0 && $count <= count($titles)) {
+            $detail = $this->joinTitles(array_slice($titles, 0, $count));
+        } elseif ($count > 0 && $titles !== []) {
+            $quoted = array_map(fn ($t) => "«{$t}»", $titles);
+            $detail = implode(', ', $quoted) . ' y ' . ($count - count($titles)) . ' más';
+        } else {
+            $detail = $count === 1 ? 'una gift card' : "{$count} gift cards";
+        }
 
         try {
             $result = $push->send([
@@ -96,6 +114,22 @@ class DiscountController extends Controller
             $result['ok'],
             $result['ok'] === 1 ? 'dispositivo' : 'dispositivos',
         );
+    }
+
+    /**
+     * "«A»" · "«A» y «B»" · "«A», «B» y «C»"
+     */
+    private function joinTitles(array $titles): string
+    {
+        $quoted = array_map(fn ($t) => "«{$t}»", $titles);
+
+        if (count($quoted) <= 1) {
+            return $quoted[0] ?? '';
+        }
+
+        $last = array_pop($quoted);
+
+        return implode(', ', $quoted) . ' y ' . $last;
     }
 
     /**
