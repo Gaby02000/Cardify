@@ -285,8 +285,8 @@ class GiftCardController extends Controller
         $giftcard->save();
 
         $msg = $giftcard->is_active
-            ? "«{$giftcard->title}» ahora está visible en la tienda."
-            : "«{$giftcard->title}» quedó oculta de la tienda.";
+            ? "«{$giftcard->title}» ahora se muestra en la página."
+            : "«{$giftcard->title}» dejó de mostrarse en la página.";
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([

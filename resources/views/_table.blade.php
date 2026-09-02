@@ -67,7 +67,7 @@
                     <button type="button"
                             class="toggle-active inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition {{ $giftcard->is_active ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}"
                             data-url="{{ route('giftcards.toggle', $giftcard->id) }}"
-                            title="{{ $giftcard->is_active ? 'Ocultar de la tienda' : 'Mostrar en la tienda' }}">
+                            title="{{ $giftcard->is_active ? 'Ocultar de la página' : 'Mostrar en la página' }}">
                         <span class="h-1.5 w-1.5 rounded-full {{ $giftcard->is_active ? 'bg-emerald-500' : 'bg-gray-400' }}"></span>
                         {{ $giftcard->is_active ? 'Activa' : 'Oculta' }}
                     </button>
