@@ -18,11 +18,13 @@ class GiftCard extends Model
         'price',
         'discount_percent',
         'image',
-        'stock'
+        'stock',
+        'is_active',
     ];
 
     protected $casts = [
         'discount_percent' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     // Se exponen en el JSON de la API para que el frontend muestre el precio ya con descuento.
@@ -34,6 +36,11 @@ class GiftCard extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, "id_category");
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 
     public function cartItems()

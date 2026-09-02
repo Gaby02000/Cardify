@@ -17,11 +17,6 @@
                     <strong class="block">Fecha de creación:</strong>
                     <p>{{ $category->created_at->format('d/m/Y H:i') }}</p>
                 </div>
-
-                <div>
-                    <strong class="block">Creado por:</strong>
-                    <p>{{ $category->user->name ?? 'Desconocido' }}</p>
-                </div>
             </div>
 
             <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">

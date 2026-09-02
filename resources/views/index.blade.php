@@ -14,8 +14,8 @@
     </div>
 
     {{-- Buscador y filtros --}}
-    <div class="mb-6 flex flex-wrap items-center space-x-4">
-        <input type="text" id="search" placeholder="Buscar giftcard..." 
+    <div class="mb-6 flex flex-wrap items-center gap-4">
+        <input type="text" id="search" placeholder="Buscar giftcard..."
                class="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 w-full sm:w-72">
 
         <div class="relative">
@@ -25,6 +25,34 @@
                 @foreach($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="relative">
+            <select id="estado"
+                class="appearance-none px-3 py-2 pr-10 rounded-md bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
+                <option value="">Activas y ocultas</option>
+                <option value="activa" @selected(request('estado') === 'activa')>Solo activas</option>
+                <option value="oculta" @selected(request('estado') === 'oculta')>Solo ocultas</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="relative">
+            <select id="stock_level"
+                class="appearance-none px-3 py-2 pr-10 rounded-md bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
+                <option value="">Cualquier stock</option>
+                <option value="low" @selected(request('stock_level') === 'low')>Poco stock (1–5)</option>
+                <option value="out" @selected(request('stock_level') === 'out')>Sin stock</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -46,14 +74,18 @@
     let timeout = null;
     let sortField = null;
     let sortDirection = null; // null = orden original
+    let currentPage = {{ $giftcards->currentPage() }};
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
     function fetchGiftcards(page = 1) {
-        const search = document.getElementById('search').value;
-        const category = document.getElementById('category').value;
+        currentPage = page;
 
         const params = new URLSearchParams({
-            search,
-            category,
+            search: document.getElementById('search').value,
+            category: document.getElementById('category').value,
+            estado: document.getElementById('estado').value,
+            stock_level: document.getElementById('stock_level').value,
             sort: sortField ?? '',
             direction: sortDirection ?? '',
             page
@@ -85,12 +117,35 @@
             });
         });
 
-        document.querySelectorAll('.pagination a').forEach(link => {
+        document.querySelectorAll('.pagination a, nav[aria-label="Navegación de paginación"] a').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const url = new URL(this.href);
                 const page = url.searchParams.get('page');
-                fetchGiftcards(page);
+                fetchGiftcards(page ? Number(page) : 1);
+            });
+        });
+
+        document.querySelectorAll('.toggle-active').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (btn.dataset.busy) return;
+                btn.dataset.busy = '1';
+                btn.style.opacity = '0.5';
+                fetch(btn.dataset.url, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.ok ? res.json() : Promise.reject(res))
+                .then(() => fetchGiftcards(currentPage))
+                .catch(() => {
+                    btn.style.opacity = '1';
+                    delete btn.dataset.busy;
+                    alert('No se pudo cambiar el estado. Probá de nuevo.');
+                });
             });
         });
     }
@@ -124,7 +179,9 @@
         timeout = setTimeout(() => fetchGiftcards(), 300);
     });
 
-    document.getElementById('category').addEventListener('change', fetchGiftcards);
+    document.getElementById('category').addEventListener('change', () => fetchGiftcards());
+    document.getElementById('estado').addEventListener('change', () => fetchGiftcards());
+    document.getElementById('stock_level').addEventListener('change', () => fetchGiftcards());
 
     // Inicial
     attachEventListeners();
