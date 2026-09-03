@@ -15,6 +15,24 @@ use DB;
 class DashboardController extends Controller
 {
     /**
+     * Estados "reales" que muestra el dashboard, cada uno con sus variantes
+     * históricas. Las pendientes (pending, processing, in_process) quedan
+     * afuera a propósito: son checkouts sin finalizar y no se gestionan desde
+     * el panel.
+     */
+    private const STATUS_GROUPS = [
+        'pagado'      => ['pagado', 'completed', 'shipped', 'authorized'],
+        'rechazado'   => ['rechazado', 'rejected', 'cancelled'],
+        'reembolsado' => ['reembolsado', 'refunded', 'charged_back'],
+    ];
+
+    /** Lista plana de los estados que el dashboard tiene en cuenta. */
+    private function visibleStatuses(): array
+    {
+        return array_merge(...array_values(self::STATUS_GROUPS));
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
@@ -30,6 +48,7 @@ class DashboardController extends Controller
                 DB::raw("$dateFormatFunction as month"),
                 DB::raw('count(*) as total')
             )
+            ->whereIn('status', $this->visibleStatuses())
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month', 'asc')
@@ -51,12 +70,13 @@ class DashboardController extends Controller
         $categoryLabels = $categoryDistribution->pluck('category')->toArray();
         $categoryData = $categoryDistribution->pluck('total_stock')->toArray();
 
-        // Ventas por mes (últimos 6 meses)
+        // Ventas por mes (últimos 6 meses) — solo órdenes pagadas
         $salesPerMonth = DB::table('orders')
             ->select(
                 DB::raw("$dateFormatFunction as month"),
                 DB::raw('SUM(total_price) as total_sales')
             )
+            ->whereIn('status', self::STATUS_GROUPS['pagado'])
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month', 'asc')
@@ -67,7 +87,7 @@ class DashboardController extends Controller
 
         // Totales generales
         $totalUsers = User::count();
-        $totalOrders = Order::count();
+        $totalOrders = Order::whereIn('status', $this->visibleStatuses())->count();
         $totalGiftCards = GiftCard::count();
         $totalGiftCardStock = GiftCard::sum('stock');
         $totalGiftCardStockValue = GiftCard::sum(DB::raw('stock * amount'));
@@ -80,17 +100,28 @@ class DashboardController extends Controller
         $paidRevenue = (float) Order::where('status', 'pagado')->sum('total_price');
 
         $startOfMonth = Carbon::now()->startOfMonth();
-        $ordersThisMonth = Order::where('created_at', '>=', $startOfMonth)->count();
+        $ordersThisMonth = Order::whereIn('status', $this->visibleStatuses())
+            ->where('created_at', '>=', $startOfMonth)->count();
         $salesThisMonth = (float) Order::where('created_at', '>=', $startOfMonth)
             ->where('status', 'pagado')->sum('total_price');
 
-        // Órdenes por estado
-        $statusCounts = Order::select('status', DB::raw('count(*) as total'))
+        // Órdenes por estado: solo los estados reales, con las variantes
+        // históricas plegadas a su nombre canónico.
+        $rawStatusCounts = Order::select('status', DB::raw('count(*) as total'))
+            ->whereIn('status', $this->visibleStatuses())
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        // Últimas órdenes
-        $recentOrders = Order::with('user')->latest('created_at')->limit(6)->get();
+        $statusCounts = collect(self::STATUS_GROUPS)
+            ->map(fn (array $variants) => (int) $rawStatusCounts->only($variants)->sum())
+            ->filter(fn (int $total) => $total > 0);
+
+        // Últimas órdenes (sin las pendientes, igual que en Órdenes emitidas)
+        $recentOrders = Order::with('user')
+            ->whereIn('status', $this->visibleStatuses())
+            ->latest('created_at')
+            ->limit(6)
+            ->get();
 
         // Más vendidas (unidades en órdenes pagadas)
         $topGiftCards = DB::table('order_items')

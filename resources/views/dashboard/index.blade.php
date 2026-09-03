@@ -8,7 +8,6 @@
 
     $statusStyle = [
         'pagado'     => 'bg-green-50 text-green-700 border-green-200',
-        'pendiente'  => 'bg-amber-50 text-amber-700 border-amber-200',
         'rechazado'  => 'bg-red-50 text-red-700 border-red-200',
         'reembolsado'=> 'bg-gray-50 text-gray-500 border-gray-200',
     ];
@@ -240,7 +239,7 @@
     @if (!$statusCounts->isEmpty())
     (function () {
         const raw = @json($statusCounts);
-        const palette = { pagado: '#37e39b', pendiente: '#ffcc4d', rechazado: '#ff5470', reembolsado: '#94a3b8' };
+        const palette = { pagado: '#37e39b', rechazado: '#ff5470', reembolsado: '#94a3b8' };
         const labels = Object.keys(raw);
         new Chart(document.getElementById('statusChart'), {
             type: 'doughnut',
