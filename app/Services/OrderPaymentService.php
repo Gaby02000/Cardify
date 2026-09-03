@@ -168,7 +168,8 @@ class OrderPaymentService
                     'Tu pago de $%s se aprobó. Entrá para ver tus códigos.',
                     number_format((float) $order->total_price, 2, ',', '.')
                 ),
-                'url' => '/order-confirmed?external_reference=' . $order->id,
+                'url' => rtrim((string) config('services.frontend_url'), '/')
+                    . '/order-confirmed?external_reference=' . $order->id,
                 'tag' => 'cardify-order-' . $order->id,
             ], $subscriptions);
         } catch (\Throwable $e) {

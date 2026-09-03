@@ -18,6 +18,16 @@ use MercadoPago\Exceptions\MPApiException;
 class OrderApiController extends Controller
 {
     /**
+     * Estados que representan una compra concretada. En "Mis compras" solo se
+     * muestran estas: las órdenes pendientes (checkout no finalizado) o
+     * rechazadas no aparecen en el historial del cliente.
+     */
+    private const VISIBLE_STATUSES = [
+        'pagado', 'completed', 'shipped', 'authorized',
+        'reembolsado', 'refunded', 'charged_back',
+    ];
+
+    /**
      * Crea la orden en estado "pendiente" y devuelve el link de pago.
      * NO se descuenta stock ni se entregan códigos acá: eso ocurre recién
      * cuando Mercado Pago confirma el pago (ver confirm() y el webhook).
@@ -141,7 +151,8 @@ class OrderApiController extends Controller
      */
     public function index(Request $request)
     {
-        $base = Order::where('user_client_id', $request->user()->id);
+        $base = Order::where('user_client_id', $request->user()->id)
+            ->whereIn('status', self::VISIBLE_STATUSES);
 
         // Número correlativo por usuario: mapa id => posición cronológica.
         $numberById = (clone $base)
@@ -214,6 +225,7 @@ class OrderApiController extends Controller
     public function receipt(Request $request, int $number)
     {
         $ids = Order::where('user_client_id', $request->user()->id)
+            ->whereIn('status', self::VISIBLE_STATUSES)
             ->orderBy('created_at')->orderBy('id')
             ->pluck('id');
 

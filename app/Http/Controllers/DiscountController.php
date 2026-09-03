@@ -102,7 +102,7 @@ class DiscountController extends Controller
             $result = $push->send([
                 'title' => "{$percent}% OFF en Cardify",
                 'body'  => "Aprovechá {$percent}% de descuento en {$detail}.",
-                'url'   => '/',
+                'url'   => rtrim((string) config('services.frontend_url'), '/') . '/',
                 'tag'   => 'cardify-descuento',
             ]);
         } catch (\Throwable $e) {
