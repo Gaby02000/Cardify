@@ -28,7 +28,7 @@ class PromotionController extends Controller
             $result = $push->send([
                 'title' => $data['title'],
                 'body' => $data['body'],
-                'url' => '/',
+                'url' => rtrim((string) config('services.frontend_url'), '/') . '/',
                 'tag' => 'cardify-promo',
             ]);
         } catch (\Throwable $e) {
