@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Cardify - @yield('title', 'Panel')</title>
     <script src="https://unpkg.com/alpinejs" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -105,6 +106,7 @@
                 </div>
 
                 <a href="{{ route('orders.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Órdenes emitidas</a>
+                <a href="{{ route('discounts.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Descuentos</a>
                 <a href="{{ route('promotions.index') }}" class="px-3 py-2 rounded hover:bg-gray-100 hover:text-gray-900 transition">Promociones</a>
             </nav>
         </aside>
@@ -126,6 +128,7 @@
             @yield('content-base')
         </main>
     </div>
+    @include('partials.confirm-modal')
     @stack('scripts')
 </body>
 </html>

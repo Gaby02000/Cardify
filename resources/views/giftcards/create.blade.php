@@ -70,6 +70,16 @@
                        class="w-full p-2 rounded-md bg-white border border-gray-300 text-gray-900" />
             </div>
 
+            <label class="flex items-start gap-2 text-sm">
+                <input type="hidden" name="is_active" value="0">
+                <input type="checkbox" name="is_active" value="1" {{ old('is_active', '1') ? 'checked' : '' }}
+                       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900/20">
+                <span>
+                    Mostrar esta gift card en la página.
+                    <span class="text-gray-500">Si lo destildás, se guarda pero los clientes no la ven al comprar.</span>
+                </span>
+            </label>
+
             <button type="submit"
                     class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded font-semibold transition">
                 Guardar GiftCard

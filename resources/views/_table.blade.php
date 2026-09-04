@@ -3,40 +3,106 @@
         <thead class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
                 <th class="py-2.5 px-3 border-b border-gray-200 w-[4%]">#</th>
-                <th class="py-2.5 px-3 border-b border-gray-200 w-[10%]">Imagen</th>
-                <th class="py-2.5 px-3 border-b border-gray-200 w-[16%]">Título</th>
-                <th class="py-2.5 px-3 border-b border-gray-200 w-[20%]">Descripción</th>
-                <th class="py-2.5 px-3 border-b border-gray-200 w-[15%]">Categoría</th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="amount">
-                    Monto <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[9%]">Imagen</th>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[14%]">Título</th>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[13%]">Descripción</th>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[12%]">Categoría</th>
+                <th class="py-2 px-2 border-b border-gray-200 w-[9%]">
+                    <button type="button" data-field="amount"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Monto</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[10%] cursor-pointer select-none" data-field="price">
-                    Precio <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[10%]">
+                    <button type="button" data-field="price"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Precio</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="sortable py-2.5 px-3 border-b border-gray-200 w-[7%] cursor-pointer select-none" data-field="stock">
-                    Stock <span class="sort-icon inline-block ml-1 text-gray-400 font-bold text-xs"></span>
+                <th class="py-2 px-2 border-b border-gray-200 w-[6%]">
+                    <button type="button" data-field="stock"
+                            class="sortable inline-flex w-full items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 transition hover:border-gray-400 hover:bg-gray-100">
+                        <span>Stock</span>
+                        <svg class="sort-icon h-3.5 w-3.5 shrink-0 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4M8 15l4 4 4-4" />
+                        </svg>
+                    </button>
                 </th>
-                <th class="py-2.5 px-3 border-b border-gray-200 w-[8%]">Detalle</th>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[9%]">Estado</th>
+                <th class="py-2.5 px-3 border-b border-gray-200 w-[14%]">Detalle</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($giftcards as $index => $giftcard)
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors {{ $giftcard->is_active ? '' : 'bg-gray-50/60' }}">
                 <td class="py-2 px-3 border-b border-gray-100">{{ $index + 1 }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">
-                    <img src="{{ asset($giftcard->image) }}" alt="{{ $giftcard->title }}" class="h-12 w-auto max-w-full object-contain rounded">
+                    <img src="{{ asset($giftcard->image) }}" alt="{{ $giftcard->title }}" class="h-12 w-auto max-w-full object-contain rounded {{ $giftcard->is_active ? '' : 'opacity-50' }}">
                 </td>
                 <td class="py-2 px-3 border-b border-gray-100 font-semibold text-gray-900">{{ $giftcard->title }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ Str::limit($giftcard->description, 100) }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->category->name ?? 'Sin categoría' }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->amount, 2) }}</td>
-                <td class="py-2 px-3 border-b border-gray-100">${{ number_format($giftcard->price, 2) }}</td>
-                <td class="py-2 px-3 border-b border-gray-100">{{ $giftcard->stock }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">
-                    <a href="{{ route('giftcards.show', $giftcard->id) }}"
-                       class="inline-block border border-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-100 transition">
-                        Ver
-                    </a>
+                    @if ($giftcard->has_discount)
+                        <span class="text-gray-400 line-through">${{ number_format($giftcard->price, 2) }}</span>
+                        <span class="font-semibold text-gray-900">${{ number_format($giftcard->final_price, 2) }}</span>
+                        <span class="ml-1 rounded bg-emerald-50 px-1 py-0.5 text-xs font-semibold text-emerald-700">-{{ $giftcard->discount_percent }}%</span>
+                    @else
+                        ${{ number_format($giftcard->price, 2) }}
+                    @endif
+                </td>
+                <td class="py-2 px-3 border-b border-gray-100">
+                    <span class="{{ $giftcard->stock <= 0 ? 'font-semibold text-red-600' : ($giftcard->stock <= 5 ? 'font-semibold text-amber-600' : '') }}">
+                        {{ $giftcard->stock }}
+                    </span>
+                </td>
+                <td class="py-2 px-3 border-b border-gray-100">
+                    <button type="button"
+                            class="toggle-active inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold transition {{ $giftcard->is_active ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}"
+                            data-url="{{ route('giftcards.toggle', $giftcard->id) }}"
+                            title="{{ $giftcard->is_active ? 'Ocultar de la página' : 'Mostrar en la página' }}">
+                        <span class="h-1.5 w-1.5 rounded-full {{ $giftcard->is_active ? 'bg-emerald-500' : 'bg-gray-400' }}"></span>
+                        {{ $giftcard->is_active ? 'Activa' : 'Oculta' }}
+                    </button>
+                </td>
+                <td class="py-2 px-3 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('giftcards.show', $giftcard->id) }}"
+                           class="inline-block border border-gray-300 text-gray-700 px-3 py-1 rounded hover:bg-gray-100 transition">
+                            Ver
+                        </a>
+                        <form action="{{ route('giftcards.duplicate', $giftcard->id) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded border border-gray-300 text-gray-600 transition hover:bg-gray-100"
+                                    aria-label="Duplicar {{ $giftcard->title }}" title="Duplicar">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <rect x="9" y="9" width="11" height="11" rx="2" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15V5a2 2 0 0 1 2-2h10" />
+                                </svg>
+                            </button>
+                        </form>
+                        <form action="{{ route('giftcards.destroy', $giftcard->id) }}" method="POST" x-data>
+                            @csrf
+                            @method('DELETE')
+                            <button type="button"
+                                    x-on:click="$dispatch('confirm-delete', { form: $root, message: @js('Se va a borrar la gift card «' . $giftcard->title . '». Esta acción no se puede deshacer.') })"
+                                    class="inline-flex h-8 w-8 items-center justify-center rounded border border-red-200 text-red-600 transition hover:bg-red-50"
+                                    aria-label="Eliminar {{ $giftcard->title }}" title="Eliminar">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6 7h12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-8 0 .8 12.2A2 2 0 0 0 8.79 21h6.42a2 2 0 0 0 1.99-1.8L18 7M10 11v6m4-6v6" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             @endforeach

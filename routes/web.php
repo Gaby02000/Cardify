@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PromotionController;
+use App\Http\Controllers\DiscountController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Pdf\OrderPdfController;
 use Mockery\Generator\StringManipulation\Pass\Pass;
@@ -27,6 +28,10 @@ use Mockery\Generator\StringManipulation\Pass\Pass;
 
 Route::get('/', [GiftCardController::class, 'index'])->name('home')->middleware('auth');
 // Para giftcards
+Route::middleware('auth')->group(function () {
+    Route::post('/giftcards/{giftcard}/toggle', [GiftCardController::class, 'toggleActive'])->name('giftcards.toggle');
+    Route::post('/giftcards/{giftcard}/duplicate', [GiftCardController::class, 'duplicate'])->name('giftcards.duplicate');
+});
 Route::resource('/giftcards', GiftCardController::class)->middleware('auth');
 // Para categorias
 Route::resource('/categories', CategoryController::class)->middleware('auth');
@@ -66,6 +71,13 @@ Route::resource('dashboard', DashboardController::class)->only(['index'])->middl
 Route::middleware('auth')->group(function () {
     Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
     Route::post('/promotions', [PromotionController::class, 'send'])->name('promotions.send');
+});
+
+// Descuentos: aplicar/quitar promociones de precio sobre tarjetas o categorías
+Route::middleware('auth')->group(function () {
+    Route::get('/discounts', [DiscountController::class, 'index'])->name('discounts.index');
+    Route::post('/discounts', [DiscountController::class, 'store'])->name('discounts.store');
+    Route::post('/discounts/clear', [DiscountController::class, 'clear'])->name('discounts.clear');
 });
 
 Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])

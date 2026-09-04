@@ -10,11 +10,17 @@ class Category extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name'
+        'name',
+        'user_id',
     ];
 
     public function giftCards()
     {
         return $this->hasMany(GiftCard::class, 'id_category');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

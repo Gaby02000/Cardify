@@ -23,8 +23,14 @@ class OrderController extends Controller
     {
         $query = Order::with('user');
 
+        // Las órdenes pendientes no se listan: son checkouts sin finalizar
+        // (sirven para el flujo del carrito, no para gestión).
+        $query->whereNotIn('status', self::STATUS_GROUPS['pendiente']);
+
         // Filtro por estado
-        if (($status = $request->input('status')) && isset(self::STATUS_GROUPS[$status])) {
+        if (($status = $request->input('status'))
+            && isset(self::STATUS_GROUPS[$status])
+            && $status !== 'pendiente') {
             $query->whereIn('status', self::STATUS_GROUPS[$status]);
         }
 

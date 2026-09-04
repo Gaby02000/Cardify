@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResetPasswordMail;
 use App\Models\User;
@@ -27,9 +28,21 @@ class PasswordResetController extends Controller
             return back()->withErrors(['email' => 'No se encontró un usuario con ese correo.']);
         }
 
-        $token = Password::broker()->createToken($user);
-        Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
-        return back()->with('status', 'Se envió un correo con el enlace para restablecer la contraseña.');
+        try {
+            $token = Password::broker()->createToken($user);
+            Mail::to($user->email)->send(new ResetPasswordMail($token, $user->email));
+        } catch (\Throwable $e) {
+            Log::error('No se pudo enviar el correo de recuperación: ' . $e->getMessage(), [
+                'email' => $user->email,
+                'mailer' => config('mail.default'),
+            ]);
+
+            return back()->withErrors([
+                'email' => 'No se pudo enviar el correo en este momento. Revisá la configuración de correo o probá más tarde.',
+            ]);
+        }
+
+        return back()->with('status', 'Se envió un correo con el enlace para restablecer la contraseña. Revisá también la carpeta de spam.');
     }
     public function showResetForm(Request $request, $token)
     {

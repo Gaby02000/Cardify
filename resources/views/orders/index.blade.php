@@ -15,7 +15,7 @@
         <select id="status"
                 class="px-3 py-2 rounded-md bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900/10">
             <option value="">Todos los estados</option>
-            @foreach (['pagado' => 'Pagado', 'pendiente' => 'Pendiente', 'rechazado' => 'Rechazado', 'reembolsado' => 'Reembolsado'] as $val => $label)
+            @foreach (['pagado' => 'Pagado', 'rechazado' => 'Rechazado', 'reembolsado' => 'Reembolsado'] as $val => $label)
                 <option value="{{ $val }}" @selected(request('status') === $val)>{{ $label }}</option>
             @endforeach
         </select>
