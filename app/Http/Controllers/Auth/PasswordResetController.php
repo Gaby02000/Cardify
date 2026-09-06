@@ -25,7 +25,7 @@ class PasswordResetController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
-            return back()->withErrors(['email' => 'No se encontró un usuario con ese correo.']);
+            return back()->withErrors(['email' => 'Este correo no está asociado a ningún usuario.']);
         }
 
         try {
@@ -46,9 +46,20 @@ class PasswordResetController extends Controller
     }
     public function showResetForm(Request $request, $token)
     {
+        $email = (string) $request->query('email', '');
+        $user = $email !== '' ? User::where('email', $email)->first() : null;
+
+        // Sin este chequeo, el formulario de "nueva contraseña" era accesible
+        // con cualquier token/correo (aunque el envío después fallara).
+        if (!$user || !Password::broker()->tokenExists($user, $token)) {
+            return redirect()->route('password.request')->withErrors([
+                'email' => 'El enlace de recuperación es inválido o ya expiró. Pedí uno nuevo.',
+            ]);
+        }
+
         return view('reset_password', [
             'token' => $token,
-            'email' => $request->email
+            'email' => $email,
         ]);
     }
 
@@ -60,19 +71,25 @@ class PasswordResetController extends Controller
             'token' => 'required'
         ]);
 
-        $response = Password::reset(
+        $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->password = bcrypt($password);
                 $user->save();
             }
         );
-        if ($response == Password::PASSWORD_RESET) {
-            // Usando Lang::get para un mensaje traducido
+
+        if ($status === Password::PASSWORD_RESET) {
             return redirect()->route('login')->with('status', Lang::get('passwords.reset'));
-        } else {
-            return back()->withErrors(['email' => 'El token de restablecimiento es inválido o ha expirado.']);
         }
+
+        $message = match ($status) {
+            Password::INVALID_USER => 'Este correo no está asociado a ningún usuario.',
+            Password::RESET_THROTTLED => 'Esperá unos minutos antes de volver a intentarlo.',
+            default => 'El enlace de recuperación es inválido o ya expiró.',
+        };
+
+        return back()->withErrors(['email' => $message]);
     }
 }
 
