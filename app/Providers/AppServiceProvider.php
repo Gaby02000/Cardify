@@ -2,9 +2,6 @@
 
 namespace App\Providers;
 
-use App\Listeners\SendNewLoginAlert;
-use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 use MercadoPago\MercadoPagoConfig;
@@ -30,10 +27,6 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->ensureCaBundle();
-
-        // Aviso por correo cuando alguien inicia sesión desde un dispositivo/IP
-        // nuevo (panel y tienda).
-        Event::listen(Login::class, SendNewLoginAlert::class);
 
         // En local, el SDK de Mercado Pago omite la verificación de certificado
         // (evita "unable to get local issuer certificate" en Windows/dev).
