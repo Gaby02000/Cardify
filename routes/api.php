@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\PushSubscriptionController;
 |--------------------------------------------------------------------------
 */
 Route::get('/giftcards', [GiftCardApiController::class, 'index']);
+Route::get('/giftcards/{id}', [GiftCardApiController::class, 'show'])->whereNumber('id');
 Route::get('/categories', [CategoryApiController::class, 'index']);
 
 Route::post('/login', [LoginApiController::class, 'login']);

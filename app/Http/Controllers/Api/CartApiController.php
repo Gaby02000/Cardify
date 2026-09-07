@@ -7,8 +7,6 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\GiftCard;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class CartApiController extends Controller
 {
@@ -132,43 +130,5 @@ class CartApiController extends Controller
         }
 
         return response()->json(['error' => 'No cart found to clear'], 404);
-    }
-
-
-    public function removeItem(Request $request)
-    {
-        $request->validate([
-            'cart_item_id' => 'required|integer|exists:cart_items,id',
-            'session_id' => 'nullable|string',
-        ]);
-
-        $user = $request->user('sanctum');
-        $userId = $user?->id;
-        $sessionId = $request->input('session_id');
-
-        if ($userId) {
-            $cart = Cart::where('user_client_id', $userId)->first();
-        } elseif ($sessionId) {
-            $cart = Cart::where('session_id', $sessionId)->first();
-        } else {
-            return response()->json(['error' => 'No cart found'], 404);
-        }
-
-        if (!$cart) {
-            return response()->json(['error' => 'No cart found'], 404);
-        }
-
-        $cartItem = $cart->cartItems()->where('id', $request->cart_item_id)->first();
-
-        if (!$cartItem) {
-            return response()->json(['error' => 'Cart item not found in your cart'], 404);
-        }
-
-        $cartItem->delete();
-
-        return response()->json([
-            'message' => 'Item removed from cart',
-            'cart_item_id' => $request->cart_item_id,
-        ], 200);
     }
 }

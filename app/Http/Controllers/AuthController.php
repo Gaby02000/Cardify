@@ -31,33 +31,4 @@ class AuthController extends Controller
             'email' => 'Las credenciales no coinciden con nuestros registros.',
         ]);
     }
-
-     public function showRegisterForm()
-    {
-        return view('register');
-    }
-
-    // Procesar el registro
-    public function register(Request $request)
-    {
-        // Validar entrada
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|confirmed|min:6',
-        ]);
-
-        // Crear usuario
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
-
-        // Autenticarlo automáticamente
-        Auth::login($user);
-
-        // Redirigir a inicio u otra página
-        return redirect('/');
-    }
 }
