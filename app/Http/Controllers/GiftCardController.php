@@ -105,12 +105,6 @@ class GiftCardController extends Controller
         $apiKey = config('cloudinary.cloud.api_key');
         $apiSecret = config('cloudinary.cloud.api_secret');
 
-        Log::info('🔐 Cloudinary Config', [
-            'cloud_name' => config('cloudinary.cloud.cloud_name'),
-            'api_key' => config('cloudinary.cloud.api_key'),
-        ]);
-
-
         $paramsToSign = "folder={$folder}&public_id={$publicId}&timestamp={$timestamp}{$apiSecret}";
         $signature = hash('sha256', $paramsToSign);
 

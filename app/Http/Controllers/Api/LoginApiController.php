@@ -11,7 +11,6 @@ use App\Models\CartItem;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class LoginApiController extends Controller
@@ -19,14 +18,12 @@ class LoginApiController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-        Log::debug('Credenciales del usuario: ' . json_encode($credentials));
-        
+
         if (Auth::guard('user_client')->attempt($credentials)) {
             $user = Auth::guard('user_client')->user();
 
             // Si vino con session_id del carrito anónimo
             $sessionId = $request->input('session_id');
-            Log::debug('Session ID del usuario: ' . $sessionId);
             if ($sessionId) {
                 $guestCart = Cart::where('session_id', $sessionId)->first();
                 if ($guestCart) {
