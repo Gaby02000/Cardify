@@ -103,7 +103,7 @@ class OrderPaymentService
                 for ($i = 0; $i < $item->quantity; $i++) {
                     $codes[] = [
                         'gift_card' => $item->giftCard->title ?? 'Gift Card',
-                        'code' => strtoupper(uniqid('GC-')),
+                        'code' => $this->generateCode(),
                     ];
                 }
             }
@@ -126,6 +126,36 @@ class OrderPaymentService
 
             return $codes;
         });
+    }
+
+    /**
+     * Genera un código de gift card con formato GC-XXXX-XXXX-XXXX.
+     *
+     * Usa random_int (CSPRNG) en vez de uniqid(): uniqid() devuelve el
+     * timestamp en microsegundos, así que conociendo un código se podían
+     * deducir los de las compras hechas cerca en el tiempo. El código ES el
+     * producto que se vende, así que tiene que ser impredecible.
+     *
+     * El alfabeto excluye 0/O y 1/I/L para que no se confundan al leerlos o
+     * dictarlos. 12 caracteres sobre 31 símbolos ≈ 59 bits: adivinar uno por
+     * fuerza bruta no es viable, y la probabilidad de colisión es
+     * despreciable en el orden de magnitud de órdenes que maneja la tienda.
+     */
+    private function generateCode(): string
+    {
+        $alfabeto = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+        $ultimo = strlen($alfabeto) - 1;
+
+        $bloques = [];
+        for ($b = 0; $b < 3; $b++) {
+            $bloque = '';
+            for ($i = 0; $i < 4; $i++) {
+                $bloque .= $alfabeto[random_int(0, $ultimo)];
+            }
+            $bloques[] = $bloque;
+        }
+
+        return 'GC-' . implode('-', $bloques);
     }
 
     public function reject(Order $order): void
