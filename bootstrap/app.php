@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         //
         $middleware->append(\Illuminate\Http\Middleware\HandleCors::class);
+
+        // Detrás de Vercel u otro proxy: tomar la IP y el esquema reales de los
+        // headers X-Forwarded-*. Sin esto, el aviso de nuevo inicio de sesión
+        // registraría la IP del edge en lugar de la del cliente.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
