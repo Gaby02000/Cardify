@@ -42,7 +42,13 @@ Route::resource('/users', UserProfileController::class)
 
 // Para carrito y ordenes después
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index')->middleware('auth');
-Route::resource('/orders', OrderController::class)->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::resource('/orders', OrderController::class);
+
+    // La factura expone datos del cliente y los ids son correlativos: tiene que
+    // quedar siempre dentro del grupo autenticado.
+    Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])->name('orders.pdf');
+});
 
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.submit');
@@ -80,8 +86,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/discounts/clear', [DiscountController::class, 'clear'])->name('discounts.clear');
 });
 
-Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])
-     ->name('orders.pdf');
 
 Route::post('/logout', function () {
     Auth::logout();
