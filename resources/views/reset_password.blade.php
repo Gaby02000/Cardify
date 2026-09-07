@@ -26,6 +26,12 @@
 
         <h2 class="text-lg font-semibold text-center mb-6 text-gray-900">Restablecer contraseña</h2>
 
+        @if ($errors->any())
+            <div class="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md mb-4 text-sm text-center">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
         <form action="{{ route('password.update') }}" method="POST" class="space-y-4">
             @csrf
             <input type="hidden" name="token" value="{{ $token }}">
