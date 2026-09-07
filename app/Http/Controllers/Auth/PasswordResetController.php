@@ -14,7 +14,7 @@ class PasswordResetController extends Controller
 {
     public function showLinkRequestForm()
     {
-        return view('auth.passwords.email');
+        return view('forgot_password');
     }
 
 

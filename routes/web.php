@@ -50,26 +50,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/pdf', [OrderPdfController::class, 'download'])->name('orders.pdf');
 });
 
+/*
+|--------------------------------------------------------------------------
+| Autenticación del panel
+|--------------------------------------------------------------------------
+| Una sola definición por acción. Antes había pares duplicados (register y
+| password.* estaban declarados dos veces con controladores distintos): ganaba
+| siempre la última y las primeras quedaban muertas o directamente rotas.
+*/
+
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login'])->name('login.submit');
 
-Route::get('password/reset', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
-
-Route::get('password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-Route::post('password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
-
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-
-
-Route::get('/forgot-password', function () {return view('forgot_password');})->name('password.request');
-
-Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
-
 Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [RegisterController::class, 'register']);
+
+// Recuperación de contraseña. El link del mail se arma con route('password.reset'),
+// así que estas URLs y ResetPasswordMail no se pueden desincronizar.
+Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
 Route::resource('dashboard', DashboardController::class)->only(['index'])->middleware('auth');
 

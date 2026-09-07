@@ -16,7 +16,9 @@ class ResetPasswordMail extends Mailable
 
     public function build()
     {
-        $resetUrl = url("password/reset/{$this->token}?email={$this->email}");
+        // Se arma con route() y no a mano: así el link siempre apunta a la ruta
+        // real de reseteo aunque cambie la URL.
+        $resetUrl = route('password.reset', ['token' => $this->token, 'email' => $this->email]);
 
         return $this->from('chinogimenez0000@gmail.com', 'Cardify')
                     ->subject('Restablecer Contraseña - Cardify')
