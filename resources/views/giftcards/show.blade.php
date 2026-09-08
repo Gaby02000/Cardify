@@ -9,7 +9,7 @@
 
             @if ($giftcard->image)
                 <div class="mb-4 text-center">
-                    <img src="{{ asset($giftcard->image) }}" alt="Imagen de GiftCard" class="mx-auto rounded shadow max-h-60">
+                    <img src="{{ $giftcard->imageUrl(480) }}" srcset="{{ $giftcard->imageUrl(480) }} 1x, {{ $giftcard->imageUrl(960) }} 2x" alt="Imagen de GiftCard" loading="lazy" decoding="async" class="mx-auto rounded shadow max-h-60">
                 </div>
             @endif
 

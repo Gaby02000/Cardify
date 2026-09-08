@@ -53,6 +53,45 @@ class GiftCard extends Model
         return $this->hasMany(OrderItem::class, 'gift_card_id');
     }
 
+    /**
+     * URL de la imagen con transformaciones de Cloudinary.
+     *
+     * En la base queda la URL del archivo original que subió el admin (hasta
+     * 2 MB), y el panel la mostraba tal cual en miniaturas de 48px. Cloudinary
+     * aplica las transformaciones que se le pasen en el path, entre "/upload/"
+     * y el resto: f_auto elige el formato según el navegador, q_auto ajusta la
+     * calidad y c_fill recorta al recuadro pedido.
+     *
+     * Si la imagen no es de Cloudinary (o no hay), devuelve el valor original
+     * sin tocarlo.
+     */
+    public function imageUrl(?int $width = null, ?int $height = null): ?string
+    {
+        $url = $this->image;
+
+        if (! $url || ! preg_match('#^(https?://res\.cloudinary\.com/[^/]+/image/upload)/(.+)$#', $url, $m)) {
+            return $url;
+        }
+
+        [, $base, $resto] = $m;
+
+        // Ya tiene transformaciones aplicadas: no encadenamos otras.
+        if (preg_match('#^[a-z]{1,3}_[^/]*/#', $resto)) {
+            return $url;
+        }
+
+        $partes = ['f_auto', 'q_auto'];
+        if ($width) {
+            $partes[] = 'c_fill';
+            $partes[] = "w_{$width}";
+        }
+        if ($height) {
+            $partes[] = "h_{$height}";
+        }
+
+        return $base . '/' . implode(',', $partes) . '/' . $resto;
+    }
+
     public function getHasDiscountAttribute(): bool
     {
         return $this->discount_percent !== null && $this->discount_percent > 0;

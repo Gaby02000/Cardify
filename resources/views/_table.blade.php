@@ -43,7 +43,7 @@
             <tr class="hover:bg-gray-50 transition-colors {{ $giftcard->is_active ? '' : 'bg-gray-50/60' }}">
                 <td class="py-2 px-3 border-b border-gray-100">{{ $index + 1 }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">
-                    <img src="{{ asset($giftcard->image) }}" alt="{{ $giftcard->title }}" class="h-12 w-auto max-w-full object-contain rounded {{ $giftcard->is_active ? '' : 'opacity-50' }}">
+                    <img src="{{ $giftcard->imageUrl(96) }}" srcset="{{ $giftcard->imageUrl(96) }} 1x, {{ $giftcard->imageUrl(192) }} 2x" alt="{{ $giftcard->title }}" loading="lazy" decoding="async" class="h-12 w-auto max-w-full object-contain rounded {{ $giftcard->is_active ? '' : 'opacity-50' }}">
                 </td>
                 <td class="py-2 px-3 border-b border-gray-100 font-semibold text-gray-900">{{ $giftcard->title }}</td>
                 <td class="py-2 px-3 border-b border-gray-100">{{ Str::limit($giftcard->description, 100) }}</td>
