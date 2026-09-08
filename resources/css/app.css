@@ -9,3 +9,19 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/*
+ * Compatibilidad con Tailwind 3, que es la version que servia el CDN.
+ * En v3 el color de borde por defecto era gray-200; en v4 pasa a ser
+ * currentColor, asi que sin esto todo elemento con `border` y sin color
+ * explicito cambiaria de aspecto al compilar los estilos localmente.
+ */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
