@@ -83,13 +83,13 @@ class GiftCardController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'id_category' => 'required|integer',
+            'id_category' => 'required|integer|exists:categories,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'amount' => 'required|numeric',
-            'price' => 'required|numeric',
+            'amount' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'stock' => 'required|integer',
+            'stock' => 'required|integer|min:0',
             'is_active' => 'nullable|boolean',
         ]);
 
