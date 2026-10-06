@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [GiftCardController::class, 'index'])->name('home')->middleware('auth');
+// La página principal del panel es el dashboard (login, registro, logo y 404 caen acá).
+Route::get('/', fn () => redirect()->route('dashboard.index'))->name('home')->middleware('auth');
 
 // Para giftcards
 Route::middleware('auth')->group(function () {
