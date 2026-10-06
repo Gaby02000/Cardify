@@ -85,7 +85,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="bg-white border border-gray-200 rounded-lg p-5">
             <h2 class="text-sm font-medium text-gray-500 mb-4">Órdenes por estado</h2>
-            @if ($statusCounts->isEmpty())
+            @if ($statusCounts->sum() === 0)
                 <p class="text-sm text-gray-500">Sin órdenes todavía.</p>
             @else
                 <div class="h-56"><canvas id="statusChart"></canvas></div>
@@ -236,7 +236,7 @@
         }
     });
 
-    @if (!$statusCounts->isEmpty())
+    @if ($statusCounts->sum() > 0)
     (function () {
         const raw = @json($statusCounts);
         const palette = { pagado: '#37e39b', rechazado: '#ff5470', reembolsado: '#94a3b8' };
