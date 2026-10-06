@@ -26,7 +26,8 @@ use Mockery\Generator\StringManipulation\Pass\Pass;
 //Route::get('/giftcards/create', [GiftCardController::class, 'create'])->name('giftcards.create');
 //Route::post('/giftcards', [GiftCardController::class, 'store'])->name('giftcards.store');
 
-Route::get('/', [GiftCardController::class, 'index'])->name('home')->middleware('auth');
+// La página principal del panel es el dashboard (login, registro, logo y 404 caen acá).
+Route::get('/', fn () => redirect()->route('dashboard.index'))->name('home')->middleware('auth');
 // Para giftcards
 Route::middleware('auth')->group(function () {
     Route::post('/giftcards/{giftcard}/toggle', [GiftCardController::class, 'toggleActive'])->name('giftcards.toggle');
