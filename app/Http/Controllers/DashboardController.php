@@ -111,9 +111,10 @@ class DashboardController extends Controller
             ->groupBy('status')
             ->pluck('total', 'status');
 
+        // Se mantienen los tres estados aunque alguno esté en cero, así la
+        // referencia del gráfico siempre muestra Pagado / Rechazado / Reembolsado.
         $statusCounts = collect(self::STATUS_GROUPS)
-            ->map(fn (array $variants) => (int) $rawStatusCounts->only($variants)->sum())
-            ->filter(fn (int $total) => $total > 0);
+            ->map(fn (array $variants) => (int) $rawStatusCounts->only($variants)->sum());
 
         // Últimas órdenes (sin las pendientes, igual que en Órdenes emitidas)
         $recentOrders = Order::with('user')
