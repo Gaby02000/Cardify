@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <h1>Factura / Orden #{{ $order->id }}</h1>
+    <h1>Factura / Orden #{{ $number ?? $order->id }}</h1>
 
     <p>
         <strong>Cliente:</strong> {{ $order->user->name ?? 'Usuario no disponible' }}<br>

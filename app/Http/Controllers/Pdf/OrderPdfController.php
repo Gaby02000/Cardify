@@ -30,9 +30,12 @@ class OrderPdfController extends Controller implements HasMiddleware
     {
         $order->load(['orderItems.giftCard', 'user']);
 
-        $pdf = Pdf::loadView('pdf.invoice', ['order' => $order])
+        // Mismo número correlativo que se ve en el panel, no el id real.
+        $number = $order->panelNumber() ?? $order->id;
+
+        $pdf = Pdf::loadView('pdf.invoice', ['order' => $order, 'number' => $number])
                   ->setPaper('a4');
 
-        return $pdf->download("orden-{$order->id}.pdf");
+        return $pdf->download("orden-{$number}.pdf");
     }
 }

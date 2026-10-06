@@ -127,7 +127,7 @@
                     <tbody>
                         @forelse ($recentOrders as $order)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="py-2.5 px-5 border-b border-gray-100">{{ $order->id }}</td>
+                                <td class="py-2.5 px-5 border-b border-gray-100">{{ $numberById[$order->id] ?? $order->id }}</td>
                                 <td class="py-2.5 px-5 border-b border-gray-100">{{ $order->user->name ?? 'Sin cliente' }}</td>
                                 <td class="py-2.5 px-5 border-b border-gray-100 text-right">{{ $money($order->total_price) }}</td>
                                 <td class="py-2.5 px-5 border-b border-gray-100">

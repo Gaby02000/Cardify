@@ -2,7 +2,7 @@
 
 @section('content-base')
 <div class="p-6 w-full">
-    <h1 class="text-2xl font-semibold mb-6 text-gray-900">Detalle de Orden #{{ $order->id }}</h1>
+    <h1 class="text-2xl font-semibold mb-6 text-gray-900">Detalle de Orden #{{ $number ?? $order->id }}</h1>
 
     <p class="mb-6 text-a4cadc space-y-1">
         <span><strong>Usuario:</strong> {{ $order->user->name ?? 'Usuario no disponible' }}</span><br>

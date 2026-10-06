@@ -11,7 +11,7 @@ class OrderController extends Controller
     /** Estados canónicos + variantes históricas equivalentes. */
     private const STATUS_GROUPS = [
         'pagado'      => ['pagado', 'completed', 'shipped', 'authorized'],
-        'pendiente'   => ['pendiente', 'pending', 'processing', 'in_process'],
+        'pendiente'   => Order::PENDING_STATUSES,
         'rechazado'   => ['rechazado', 'rejected', 'cancelled'],
         'reembolsado' => ['reembolsado', 'refunded', 'charged_back'],
     ];
@@ -61,11 +61,15 @@ class OrderController extends Controller
 
         $orders = $query->paginate(10)->withQueryString();
 
+        // Número correlativo que se muestra en lugar del id real: así la
+        // columna "#" va 1, 2, 3… sin los huecos que dejan las pendientes.
+        $numberById = Order::panelNumbers();
+
         if ($request->ajax()) {
-            return view('orders._table', compact('orders'))->render();
+            return view('orders._table', compact('orders', 'numberById'))->render();
         }
 
-        return view('orders.index', compact('orders'));
+        return view('orders.index', compact('orders', 'numberById'));
     }
 
 
@@ -92,7 +96,9 @@ class OrderController extends Controller
     {
         $order->load('user', 'orderItems.giftCard');
 
-        return view('orders.show', compact('order'));
+        $number = $order->panelNumber();
+
+        return view('orders.show', compact('order', 'number'));
     }
 
     /**

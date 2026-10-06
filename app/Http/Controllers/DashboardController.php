@@ -122,6 +122,9 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
+        // Mismo número correlativo que muestra "Órdenes emitidas".
+        $numberById = Order::panelNumbers();
+
         // Más vendidas (unidades en órdenes pagadas)
         $topGiftCards = DB::table('order_items')
             ->join('gift_cards', 'gift_cards.id', '=', 'order_items.gift_card_id')
@@ -161,6 +164,7 @@ class DashboardController extends Controller
             'salesThisMonth',
             'statusCounts',
             'recentOrders',
+            'numberById',
             'topGiftCards',
             'lowStock',
             'lowStockCount',
