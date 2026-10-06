@@ -16,6 +16,8 @@ class Order extends Model
         'status',
         'codes',
         'created_at',
+        'mp_preference_id',
+        'init_point',
     ];
 
     protected $casts = [

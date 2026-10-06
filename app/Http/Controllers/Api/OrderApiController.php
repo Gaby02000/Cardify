@@ -65,6 +65,21 @@ class OrderApiController extends Controller
         // Se cobra el precio ya con el descuento activo de cada gift card.
         $total = $cart->cartItems->sum(fn ($i) => $i->quantity * (float) $i->giftCard->final_price);
 
+        // Si el cliente ya inició el pago de este mismo carrito y no lo
+        // terminó, se devuelve ese link en vez de crear otra orden pendiente.
+        $pendiente = $this->findReusableOrder($cart, $user->id);
+        if ($pendiente) {
+            $pendiente->load('orderItems.giftCard');
+
+            return response()->json([
+                'message' => 'Orden reutilizada',
+                'order' => $pendiente,
+                'preference_id' => $pendiente->mp_preference_id,
+                'init_point' => $pendiente->init_point,
+                'sandbox_init_point' => null,
+            ], 200);
+        }
+
         try {
             DB::beginTransaction();
 
@@ -88,6 +103,13 @@ class OrderApiController extends Controller
             $order->load('orderItems.giftCard');
 
             $preference = $this->createMercadoPagoPreference($order, $user);
+
+            // Se guarda el link para poder reutilizarlo si el cliente vuelve a
+            // tocar "Pagar" sin haber terminado este pago.
+            $order->update([
+                'mp_preference_id' => $preference->id,
+                'init_point' => $preference->init_point,
+            ]);
 
             DB::commit();
         } catch (MPApiException $e) {
@@ -253,6 +275,44 @@ class OrderApiController extends Controller
         $order->load('orderItems.giftCard');
 
         return response()->json($order);
+    }
+
+    /**
+     * Busca una orden pendiente del mismo carrito que se pueda reutilizar:
+     * mismos ítems, mismas cantidades y mismos precios actuales. Si el admin
+     * cambió un descuento o el cliente modificó el carrito, no coincide y se
+     * crea una orden nueva como siempre.
+     *
+     * Solo considera órdenes con link guardado (las anteriores a este cambio
+     * no lo tienen) y de las últimas 24 horas.
+     */
+    private function findReusableOrder(Cart $cart, int $userId): ?Order
+    {
+        $order = Order::with('orderItems')
+            ->where('user_client_id', $userId)
+            ->where('cart_id', $cart->id)
+            ->where('status', 'pendiente')
+            ->whereNotNull('init_point')
+            ->where('created_at', '>=', now()->subDay())
+            ->latest('id')
+            ->first();
+
+        if (!$order) {
+            return null;
+        }
+
+        $firma = fn ($giftCardId, $quantity, $price) =>
+            $giftCardId . ':' . (int) $quantity . ':' . number_format((float) $price, 2, '.', '');
+
+        $carrito = $cart->cartItems
+            ->map(fn ($i) => $firma($i->gift_card_id, $i->quantity, $i->giftCard->final_price))
+            ->sort()->values()->all();
+
+        $orden = $order->orderItems
+            ->map(fn ($oi) => $firma($oi->gift_card_id, $oi->quantity, $oi->price))
+            ->sort()->values()->all();
+
+        return $carrito === $orden ? $order : null;
     }
 
     /**
